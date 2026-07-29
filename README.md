@@ -39,7 +39,24 @@ privacy.html            Plain-English privacy note
 assets/css/style.css    Everything visual. Colours and type are at the very top.
 assets/js/main.js       All the motion. Heavily commented.
 assets/img/             Logo files (see below)
+
+brand/
+  Second-Innings-Design-System.pdf   9-page brand reference — colours, type
+                                     scale, icons, and Instagram templates
+  design-system.html                 The source it was rendered from
 ```
+
+### The sport icons
+
+All 18 sport icons live in a single `<svg class="sprite">` block near the top of
+`index.html`, `donate-gear.html`, `request-equipment.html` and `what-we-do.html`,
+and are used with `<use href="#sp-cricket"/>`.
+
+**To add a sport:** add one `<symbol>` to the sprite in each of those four files,
+then reference it in the homepage chips, the ticker, and both forms' checkbox
+lists. Draw it on a 24×24 grid with a 1.5px stroke, round caps and no fill — that
+consistency is the whole reason the set looks deliberate. Page 5 of the design
+system PDF has the rules.
 
 ★ = the two pages that do the actual work. Everything else exists to get people
 to one of them.
@@ -235,15 +252,22 @@ you edit.
 
 ---
 
-## Deliberately not built: a donations page
+## Money, and the 80G problem
 
-You said Second Innings is registered but doesn't yet hold **80G** certification.
-So this site asks for **equipment, time and introductions** — not money. There is no
-payment page, and the FAQ and transparency sections say plainly that you can't issue
-tax-deductible receipts yet.
+Second Innings is registered but doesn't yet hold **80G** certification, so it
+**cannot issue tax-deductible receipts**. The site handles this honestly rather than
+hiding it:
 
-That's the honest position, and it's also the strategically better one: a donations
-page without 80G converts poorly and invites exactly the question you can't answer well.
+- There is a **"Give funds"** section on Get Involved (`#funds`) that explains money
+  goes to repairs, and states in a highlighted box that no tax receipt can be issued.
+- It routes to the contact form, not a payment gateway. **Two things still need
+  filling in there:** your real repair costs, and your UPI / bank details.
+- Four other pages also state the 80G position: `what-we-do.html` (FAQ),
+  `impact.html` (transparency), `about.html` (governance) and the CSR block.
+
+Do not remove the no-80G disclaimer until the certificate is actually in hand.
+Implying a tax benefit you can't deliver is the fastest way to lose a donor
+permanently.
 
 When 80G comes through, the structure is ready for it:
 

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Second Innings — Brand &amp; Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-900:#071C30; --navy-800:#0A2740; --navy-700:#0C3355; --navy-600:#134063; --navy-400:#3E6C90;
+    --orange-600:#C9501A; --orange-500:#E1601F; --orange-400:#EE7623; --amber-400:#F2A81D;
+    --green-500:#2F7D3A; --green-400:#3E9E44; --blue-500:#1C6BA8; --red-500:#C33A22;
+    --cream:#FBF9F6; --cream-2:#F4F0EA; --sand:#E8E1D7; --line:#DED5C8;
+    --ink:#0A1E2E; --ink-soft:#40566A; --ink-mute:#6B8095;
+    --display:"Fraunces",Georgia,serif; --body:"Inter",-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:#8A8A8A;font-family:var(--body);color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  .page{
+    width:210mm; min-height:297mm; background:var(--cream);
+    margin:0 auto 10mm; padding:18mm 16mm 16mm; position:relative; overflow:hidden;
+  }
+  @page{ size:A4; margin:0 }
+  @media print{ body{background:#fff} .page{margin:0;box-shadow:none;page-break-after:always} .page:last-child{page-break-after:auto} }
+
+  h1,h2,h3,h4{font-family:var(--display);font-weight:500;letter-spacing:-.02em;margin:0}
+  .eyebrow{font-size:8pt;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--orange-500);margin:0 0 6mm;display:flex;align-items:center;gap:3mm}
+  .eyebrow::before{content:"";width:8mm;height:1px;background:var(--orange-500)}
+  h2.sec{font-size:22pt;line-height:1.05;margin-bottom:4mm}
+  p{font-size:9.5pt;line-height:1.65;color:var(--ink-soft);margin:0 0 3mm;max-width:150mm}
+  .note{font-size:8.5pt;color:var(--ink-mute);line-height:1.6}
+  .pagenum{position:absolute;bottom:10mm;right:16mm;font-size:8pt;color:var(--ink-mute);letter-spacing:.1em}
+  .brandline{position:absolute;bottom:10mm;left:16mm;font-size:8pt;color:var(--ink-mute);letter-spacing:.1em}
+  hr{border:0;border-top:1px solid var(--line);margin:7mm 0}
+
+  /* cover */
+  .cover{background:var(--navy-900);color:var(--cream);display:flex;flex-direction:column;justify-content:space-between}
+  .cover h1{font-size:40pt;line-height:1;color:#fff;letter-spacing:-.03em}
+  .cover .tag{font-size:11pt;color:#A9C0D4;margin-top:4mm}
+  .cover .mark{width:38mm;height:38mm;background:var(--cream);border-radius:50%;padding:5mm;margin-bottom:10mm}
+  .cover .meta{font-size:8.5pt;color:#6E8AA3;letter-spacing:.1em;text-transform:uppercase;line-height:2}
+  .cover .rule{height:2px;background:linear-gradient(90deg,var(--orange-500),var(--amber-400),var(--green-400),var(--blue-500));margin:8mm 0}
+
+  /* colour */
+  .sw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm}
+  .sw__chip{height:26mm;border-radius:4mm;border:1px solid rgba(0,0,0,.06)}
+  .sw__meta{padding-top:2.5mm}
+  .sw__meta strong{display:block;font-size:9.5pt;font-weight:600}
+  .sw__meta code{display:block;font-family:ui-monospace,Menlo,monospace;font-size:9pt;color:var(--ink);margin:1mm 0}
+  .sw__meta span{display:block;font-size:8pt;color:var(--ink-mute);line-height:1.5}
+
+  /* type */
+  table{width:100%;border-collapse:collapse}
+  td{padding:4mm 0;border-bottom:1px solid var(--line);vertical-align:middle}
+  .t-sample{width:58%;color:var(--ink);padding-right:6mm}
+  .t-spec{width:42%}
+  .t-spec strong{display:block;font-size:9pt;font-weight:600;margin-bottom:1mm}
+  .t-spec span{display:block;font-size:8pt;color:var(--ink-mute);font-family:ui-monospace,Menlo,monospace;line-height:1.6}
+  .t-spec em{display:block;font-size:8pt;color:var(--ink-soft);font-style:normal;margin-top:1.5mm;line-height:1.5}
+
+  /* icons */
+  .icon-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6mm 4mm}
+  .ic{display:flex;flex-direction:column;align-items:center;gap:2mm}
+  .ic svg{width:11mm;height:11mm}
+  .ic span{font-size:7.5pt;color:var(--ink-mute)}
+
+  /* ui */
+  .btn{display:inline-flex;align-items:center;gap:2.5mm;padding:3.5mm 6mm;border-radius:100px;font-size:9pt;font-weight:600;text-decoration:none}
+  .btn--accent{background:var(--orange-500);color:#fff}
+  .btn--dark{background:var(--navy-700);color:#fff}
+  .btn--ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .field{margin-bottom:4mm;max-width:80mm}
+  .field label{display:block;font-size:8pt;font-weight:600;margin-bottom:1.5mm}
+  .field .inp{border:1px solid var(--line);border-radius:12px;background:var(--cream);padding:3.5mm 4mm;font-size:9pt;color:var(--ink-mute)}
+  .field .inp.focus{border-color:var(--orange-400);background:#fff;box-shadow:0 0 0 3px rgba(238,118,35,.13)}
+  .chip{display:inline-flex;align-items:center;gap:2mm;border:1px solid var(--line);background:#fff;border-radius:100px;padding:2.5mm 4mm;font-size:8.5pt;font-weight:500;margin:0 2mm 2mm 0}
+  .chip svg{width:4.5mm;height:4.5mm}
+  .chip--on{border-color:var(--orange-500);background:rgba(226,96,31,.07);color:var(--orange-600)}
+  .cardex{border:1px solid var(--line);border-radius:18px;background:#fff;padding:6mm;max-width:70mm}
+  .cardex h4{font-size:12pt;margin-bottom:2mm}
+  .cardex p{font-size:8.5pt;margin:0}
+  .radii{display:flex;gap:5mm;align-items:flex-end}
+  .radii div{background:var(--sand);width:22mm;height:22mm;display:grid;place-items:end center;font-size:7.5pt;color:var(--ink-soft);padding-bottom:2mm}
+
+  .logo-tile{border-radius:4mm;height:46mm;display:grid;place-items:center;padding:6mm}
+
+  /* two-col */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:8mm}
+  .three{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm}
+  .box{border:1px solid var(--line);border-radius:4mm;padding:5mm;background:#fff}
+  .box h4{font-size:10.5pt;margin-bottom:2mm}
+  .box p{font-size:8.5pt;margin:0}
+  .do{border-left:3px solid var(--green-400)}
+  .dont{border-left:3px solid var(--red-500)}
+
+  /* instagram */
+  .ig-row{display:flex;gap:5mm;align-items:flex-start}
+  .ig{border:1px solid var(--line);border-radius:3mm;overflow:hidden;background:#fff;flex:none}
+  .ig--post{width:44mm;height:55mm}
+  .ig--sq{width:44mm;height:44mm}
+  .ig--story{width:32mm;height:57mm}
+  .ig__inner{width:100%;height:100%;padding:5mm;display:flex;flex-direction:column;justify-content:space-between;background:var(--navy-800);color:#fff}
+  .ig__inner.cream{background:var(--cream);color:var(--ink)}
+  .ig__eyebrow{font-size:5pt;letter-spacing:.18em;text-transform:uppercase;color:var(--amber-400);font-weight:600}
+  .ig__h{font-family:var(--display);font-size:12pt;line-height:1.08;letter-spacing:-.02em}
+  .ig__foot{font-size:5.5pt;color:#8FA9C0;letter-spacing:.06em}
+  .ig__foot.dark{color:var(--ink-mute)}
+  .spec-list{list-style:none;margin:0;padding:0}
+  .spec-list li{font-size:8.5pt;color:var(--ink-soft);padding:2mm 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:4mm}
+  .spec-list li strong{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="sp-cricket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(40 12 12)"><path d="M12 3.2v5.7"/><rect x="8.2" y="8.9" width="7.6" height="11.7" rx="2.8"/></g><circle cx="4.8" cy="6.4" r="2.1"/></symbol>
+    <symbol id="sp-football" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.6l3.6 2.6-1.4 4.3H9.8l-1.4-4.3z"/><path d="M12 7.6V3M15.6 10.2l4.2-1.4M14.2 14.5l2.6 3.5M9.8 14.5l-2.6 3.5M8.4 10.2L4.2 8.8"/></symbol>
+    <symbol id="sp-badminton" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.1 13.9 6.4 5.2M12 13.9V3.6M14.9 13.9l2.7-8.7"/><path d="M6.4 5.2c3.6-2.1 7.6-2.1 11.2 0"/><path d="M7.9 10h8.2"/><path d="M9.1 13.9h5.8v.9a2.9 2.9 0 0 1-5.8 0z"/></symbol>
+    <symbol id="sp-basketball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/><path d="M5.6 5.6a9 9 0 0 1 0 12.8M18.4 5.6a9 9 0 0 0 0 12.8"/></symbol>
+    <symbol id="sp-tennis" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-32 12 12)"><ellipse cx="12" cy="8.4" rx="5.1" ry="6.1"/><path d="M12 14.5v6.6"/><path d="M9.7 3.4v10M14.3 3.4v10M7.6 6.2h8.8M7.6 10.6h8.8"/></g></symbol>
+    <symbol id="sp-table-tennis" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="9.6" r="6.4"/><path d="M12.7 15.4 15.6 20.7"/><circle cx="19.4" cy="6.4" r="2"/></symbol>
+    <symbol id="sp-padel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8c3.9 0 7 3.1 7 6.9 0 4-3.1 6.6-7 6.6s-7-2.6-7-6.6c0-3.8 3.1-6.9 7-6.9z"/><path d="M12 16.3v4.6M10.4 20.9h3.2"/><circle cx="9.6" cy="8.2" r=".85"/><circle cx="14.4" cy="8.2" r=".85"/><circle cx="12" cy="11.5" r=".85"/></symbol>
+    <symbol id="sp-squash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-30 12 12)"><ellipse cx="12" cy="7.9" rx="4.5" ry="5.5"/><path d="M12 13.4v7.8M7.9 7.9h8.2M12 2.4v11"/></g><circle cx="19.4" cy="19.2" r="1.7"/></symbol>
+    <symbol id="sp-pickleball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4.4" y="2.6" width="11" height="12.4" rx="4"/><path d="M9.9 15v5.6M8.4 20.6h3"/><circle cx="19" cy="17.4" r="3.2"/><circle cx="18" cy="16.5" r=".55" fill="currentColor" stroke="none"/><circle cx="20.2" cy="18.3" r=".55" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="sp-hockey" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v9.4a6.6 6.6 0 0 0 6.6 6.6H16"/><circle cx="19.4" cy="19" r="2"/></symbol>
+    <symbol id="sp-volleyball" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12.4 3c-3.4 4-4.6 12-2.6 17.8"/><path d="M3.2 10.2c5.2.6 11.6 4.6 14.6 9.4"/><path d="M20.8 10.6c-4.6-1.6-12.2-.6-17 3.4"/></symbol>
+    <symbol id="sp-athletics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="15.6" cy="4.4" r="2"/><path d="M14.2 7.4 11 11.2l2.8 2.8-1.4 6.6"/><path d="M11 11.2 6.6 12.4 5.4 18.4"/><path d="M13.6 8.6l4.2 1.4 1.6-2.6"/></symbol>
+    <symbol id="sp-swimming" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16.6" cy="6.8" r="1.9"/><path d="M4 14.2l4.6-2.8 4.4 2.2 3.2-1.8 3.4 2"/><path d="M3 19.2c1.8-1.5 3.7-1.5 5.5 0s3.7 1.5 5.5 0 3.7-1.5 5.5 0"/></symbol>
+    <symbol id="sp-gymnastics" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 3v4.6M16.5 3v4.6"/><circle cx="7.5" cy="11.6" r="4"/><circle cx="16.5" cy="11.6" r="4"/></symbol>
+    <symbol id="sp-cycling" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17" r="3.4"/><circle cx="18.5" cy="17" r="3.4"/><path d="M5.5 17 10 8.6h5l3.5 8.4M9.9 8.6h6.3M12.2 17 15 8.6"/></symbol>
+    <symbol id="sp-boxing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.6 4h5.4a3 3 0 0 1 3 3v5a4 4 0 0 1-4 4h-3.9a4 4 0 0 1-4-4V7a3 3 0 0 1 3-3z"/><path d="M5.1 9.5h-.9a2.1 2.1 0 0 0 0 4.2h.9"/><path d="M8.6 16v2.6a1.6 1.6 0 0 0 1.6 1.6h3.4a1.6 1.6 0 0 0 1.6-1.6V16"/></symbol>
+    <symbol id="sp-skating" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 3v10h7.8a4 4 0 0 1 4 4v1.2H6.4z"/><circle cx="9.4" cy="20.4" r="1.6"/><circle cx="15.6" cy="20.4" r="1.6"/></symbol>
+    <symbol id="sp-kabaddi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.4" cy="5" r="2"/><circle cx="16.6" cy="5" r="2"/><path d="M3.9 20.5V15a3.5 3.5 0 0 1 7 0v5.5"/><path d="M13.1 20.5V15a3.5 3.5 0 0 1 7 0v5.5"/><path d="M9.6 11.2h4.8"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============ 1 COVER ============ -->
+<section class="page cover">
+  <div>
+    <img class="mark" src="../assets/img/mark-512.png" alt="">
+    <div class="rule"></div>
+    <h1>Brand &amp;<br>Design System</h1>
+    <p class="tag">Second Innings &mdash; extending the life of sport</p>
+  </div>
+  <div class="meta">
+    Version 1.0<br>
+    For website, print and social<br>
+    Hyderabad, India
+  </div>
+</section>
+
+<!-- ============ 2 LOGO ============ -->
+<section class="page">
+  <p class="eyebrow">01 &mdash; Logo</p>
+  <h2 class="sec">The mark.</h2>
+  <p>The circular mark is the primary identity. It works on its own once people know us; until then, pair it with the wordmark. There are three supplied files, all with a transparent background.</p>
+
+  <div class="three" style="margin:8mm 0">
+    <div style="text-align:center"><div class="logo-tile" style="background:var(--cream-2)"><img src="../assets/img/mark-512.png" style="width:74%"></div><p class="note" style="margin-top:2.5mm"><strong>mark-512.png</strong><br>Primary, on light</p></div>
+    <div style="text-align:center"><div class="logo-tile" style="background:var(--navy-900)"><div style="background:var(--cream);border-radius:50%;padding:4mm;width:74%"><img src="../assets/img/mark-512.png" style="width:100%;display:block"></div></div><p class="note" style="margin-top:2.5mm"><strong>On dark</strong><br>Always in a cream circle</p></div>
+    <div style="text-align:center"><div class="logo-tile" style="background:var(--cream-2)"><img src="../assets/img/mark-256.png" style="width:26%"></div><p class="note" style="margin-top:2.5mm"><strong>Minimum size</strong><br>24&nbsp;px / 8&nbsp;mm</p></div>
+  </div>
+
+  <hr>
+  <div class="two">
+    <div class="box do">
+      <h4>Do</h4>
+      <p>Keep clear space around the mark equal to the width of the football inside it. Place it on cream, white or a cream circle. Use the transparent PNG, never a screenshot.</p>
+    </div>
+    <div class="box dont">
+      <h4>Don't</h4>
+      <p>Don't recolour it, add a drop shadow, stretch it, rotate it, put it on a busy photo, or drop it straight onto navy without the cream circle &mdash; the football's white panels disappear.</p>
+    </div>
+  </div>
+  <span class="brandline">Second Innings</span><span class="pagenum">02</span>
+</section>
+
+<!-- ============ 3 COLOUR ============ -->
+<section class="page">
+  <p class="eyebrow">02 &mdash; Colour</p>
+  <h2 class="sec">Navy carries it. Orange points at things.</h2>
+  <p>Navy is the voice; orange is the finger. Use orange only for the one thing you want tapped &mdash; a button, a link, a number. If two things on a layout are orange, one of them is wrong.</p>
+
+  <h4 style="font-size:11pt;margin:7mm 0 4mm">Core</h4>
+  <div class="sw-grid">
+    <div class="sw"><div class="sw__chip" style="background:#0A2740"></div>
+     <div class="sw__meta"><strong>Navy 800</strong><code>#0A2740</code><span>Dark sections, headings on light</span></div></div>
+    <div class="sw"><div class="sw__chip" style="background:#134063"></div>
+     <div class="sw__meta"><strong>Navy 600</strong><code>#134063</code><span>Body headings, logo wordmark</span></div></div>
+    <div class="sw"><div class="sw__chip" style="background:#E1601F"></div>
+     <div class="sw__meta"><strong>Orange 500</strong><code>#E1601F</code><span>Primary action. Use sparingly</span></div></div>
+  </div>
+
+  <h4 style="font-size:11pt;margin:7mm 0 4mm">Accents &mdash; from the logo</h4>
+  <div class="sw-grid">
+    <div class="sw"><div class="sw__chip" style="background:#F2A81D"></div>
+     <div class="sw__meta"><strong>Amber 400</strong><code>#F2A81D</code><span>Highlights on dark</span></div></div>
+    <div class="sw"><div class="sw__chip" style="background:#3E9E44"></div>
+     <div class="sw__meta"><strong>Green 400</strong><code>#3E9E44</code><span>Positive / accepted</span></div></div>
+    <div class="sw"><div class="sw__chip" style="background:#1C6BA8"></div>
+     <div class="sw__meta"><strong>Blue 500</strong><code>#1C6BA8</code><span>Secondary accent</span></div></div>
+  </div>
+
+  <h4 style="font-size:11pt;margin:7mm 0 4mm">Neutrals</h4>
+  <div class="sw-grid">
+    <div class="sw"><div class="sw__chip" style="background:#FBF9F6"></div>
+     <div class="sw__meta"><strong>Cream</strong><code>#FBF9F6</code><span>Page background. Never pure white</span></div></div>
+    <div class="sw"><div class="sw__chip" style="background:#F4F0EA"></div>
+     <div class="sw__meta"><strong>Cream 2</strong><code>#F4F0EA</code><span>Alternate section bands</span></div></div>
+    <div class="sw"><div class="sw__chip" style="background:#0A1E2E"></div>
+     <div class="sw__meta"><strong>Ink</strong><code>#0A1E2E</code><span>Body text</span></div></div>
+  </div>
+
+  <hr>
+  <p class="note"><strong>Rough proportions:</strong> 60% cream, 25% navy, 10% neutral greys, 5% orange. <strong>Contrast:</strong> Ink on Cream and Cream on Navy 800 both pass WCAG AA. Orange 500 on cream passes for large text only &mdash; never set body copy in orange.</p>
+  <span class="brandline">Second Innings</span><span class="pagenum">03</span>
+</section>
+
+<!-- ============ 4 TYPE ============ -->
+<section class="page">
+  <p class="eyebrow">03 &mdash; Typography</p>
+  <h2 class="sec">Two fonts. Both free.</h2>
+  <p><strong>Fraunces</strong> for anything large and emotional. <strong>Inter</strong> for anything you have to read. Both are on Google Fonts, free for commercial use, and available in Canva.</p>
+
+  <table>
+    <tr>
+     <td class="t-sample" style="font-family:var(--display);font-size:30pt;font-weight:500;line-height:1.04;letter-spacing:-0.022em">Every bat deserves</td>
+     <td class="t-spec"><strong>Display / H1</strong>
+       <span>Fraunces &middot; 500</span>
+       <span>30pt / 1.04</span>
+       <span>tracking -0.022em</span>
+       <em>Hero headlines only. One per screen.</em></td>
+   </tr>
+    <tr>
+     <td class="t-sample" style="font-family:var(--display);font-size:20pt;font-weight:500;line-height:1.08;letter-spacing:-0.022em">Small numbers, honestly counted</td>
+     <td class="t-spec"><strong>Heading / H2</strong>
+       <span>Fraunces &middot; 500</span>
+       <span>20pt / 1.08</span>
+       <span>tracking -0.022em</span>
+       <em>Section headings.</em></td>
+   </tr>
+    <tr>
+     <td class="t-sample" style="font-family:var(--display);font-size:13pt;font-weight:500;line-height:1.2;letter-spacing:-0.015em">Back where it belongs</td>
+     <td class="t-spec"><strong>Heading / H3</strong>
+       <span>Fraunces &middot; 500</span>
+       <span>13pt / 1.2</span>
+       <span>tracking -0.015em</span>
+       <em>Card and block titles.</em></td>
+   </tr>
+    <tr>
+     <td class="t-sample" style="font-family:var(--body);font-size:11pt;font-weight:400;line-height:1.6;letter-spacing:0">A cricket bat costs more than a month of groceries.</td>
+     <td class="t-spec"><strong>Lead</strong>
+       <span>Inter &middot; 400</span>
+       <span>11pt / 1.6</span>
+       <span>tracking 0</span>
+       <em>Intro paragraph under a heading.</em></td>
+   </tr>
+    <tr>
+     <td class="t-sample" style="font-family:var(--body);font-size:9.5pt;font-weight:400;line-height:1.65;letter-spacing:0">We collect from everywhere in Hyderabad.</td>
+     <td class="t-spec"><strong>Body</strong>
+       <span>Inter &middot; 400</span>
+       <span>9.5pt / 1.65</span>
+       <span>tracking 0</span>
+       <em>Default running text.</em></td>
+   </tr>
+    <tr>
+     <td class="t-sample" style="font-family:var(--body);font-size:8pt;font-weight:600;line-height:1.4;letter-spacing:0.18em">WHAT WE ACCEPT</td>
+     <td class="t-spec"><strong>Eyebrow</strong>
+       <span>Inter &middot; 600</span>
+       <span>8pt / 1.4</span>
+       <span>tracking 0.18em</span>
+       <em>Always uppercase, always orange.</em></td>
+   </tr>
+    <tr>
+     <td class="t-sample" style="font-family:var(--body);font-size:9pt;font-weight:600;line-height:1;letter-spacing:0.005em">Donate your gear</td>
+     <td class="t-spec"><strong>Button</strong>
+       <span>Inter &middot; 600</span>
+       <span>9pt / 1</span>
+       <span>tracking 0.005em</span>
+       <em>Sentence case, never ALL CAPS.</em></td>
+   </tr>
+  </table>
+
+  <hr>
+  <div class="two">
+    <div class="box"><h4>The one rule</h4><p>Fraunces never goes below 13pt and never carries a full paragraph. Inter never carries a hero headline. Mixing them the other way round is what makes a layout look homemade.</p></div>
+    <div class="box"><h4>If Fraunces is unavailable</h4><p>Substitute <strong>Playfair Display</strong> or <strong>Instrument Serif</strong>. For Inter, substitute <strong>DM Sans</strong> or system default. Never Times or Arial.</p></div>
+  </div>
+  <span class="brandline">Second Innings</span><span class="pagenum">04</span>
+</section>
+
+<!-- ============ 5 ICONS ============ -->
+<section class="page">
+  <p class="eyebrow">04 &mdash; Icons</p>
+  <h2 class="sec">Eighteen sports, one pen.</h2>
+  <p>All icons are drawn on a 24&times;24 grid with a <strong>1.5&nbsp;px stroke</strong>, round caps and round joins, and no fill. That single rule is what makes them look like a set. If you add a sport, match it exactly.</p>
+
+  <div class="icon-grid" style="margin:8mm 0">
+    <div class="ic"><svg viewBox="0 0 24 24" style="color:#E1601F"><use href="#sp-cricket"/></svg><span>Cricket</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#3E9E44"><use href="#sp-football"/></svg><span>Football</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#1C6BA8"><use href="#sp-badminton"/></svg><span>Badminton</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#F2A81D"><use href="#sp-basketball"/></svg><span>Basketball</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#2F7D3A"><use href="#sp-tennis"/></svg><span>Tennis</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#C33A22"><use href="#sp-table-tennis"/></svg><span>Table tennis</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#134063"><use href="#sp-padel"/></svg><span>Padel</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#EE7623"><use href="#sp-squash"/></svg><span>Squash</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#E1601F"><use href="#sp-pickleball"/></svg><span>Pickleball</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#3E9E44"><use href="#sp-hockey"/></svg><span>Hockey</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#1C6BA8"><use href="#sp-volleyball"/></svg><span>Volleyball</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#F2A81D"><use href="#sp-athletics"/></svg><span>Athletics</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#2F7D3A"><use href="#sp-swimming"/></svg><span>Swimming</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#C33A22"><use href="#sp-gymnastics"/></svg><span>Gymnastics</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#134063"><use href="#sp-cycling"/></svg><span>Cycling</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#EE7623"><use href="#sp-boxing"/></svg><span>Boxing</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#E1601F"><use href="#sp-skating"/></svg><span>Skating</span></div>
+<div class="ic"><svg viewBox="0 0 24 24" style="color:#3E9E44"><use href="#sp-kabaddi"/></svg><span>Kabaddi</span></div>
+  </div>
+
+  <hr>
+  <div class="two">
+    <div class="box"><h4>Colour</h4><p>On cream, cycle through the six brand colours so no two neighbours match. On navy, set every icon to cream at 90% &mdash; colour on dark gets muddy.</p></div>
+    <div class="box"><h4>Size</h4><p>19&ndash;21&nbsp;px inside chips, 25&nbsp;px in the ticker, 34&nbsp;px standalone. Below 16&nbsp;px the detail collapses &mdash; use the logo mark instead.</p></div>
+  </div>
+  <span class="brandline">Second Innings</span><span class="pagenum">05</span>
+</section>
+
+<!-- ============ 6 UI ============ -->
+<section class="page">
+  <p class="eyebrow">05 &mdash; Elements</p>
+  <h2 class="sec">Buttons, chips, fields, corners.</h2>
+
+  <h4 style="font-size:11pt;margin:6mm 0 3mm">Buttons &mdash; always fully rounded</h4>
+  <div style="display:flex;gap:4mm;align-items:center;flex-wrap:wrap">
+    <span class="btn btn--accent">Donate your gear &nbsp;&rarr;</span>
+    <span class="btn btn--dark">Request equipment</span>
+    <span class="btn btn--ghost">We need equipment</span>
+  </div>
+  <p class="note" style="margin-top:3mm">Radius 100px. Padding 16&times;28&nbsp;px. One accent button per screen &mdash; everything else is ghost or dark.</p>
+
+  <h4 style="font-size:11pt;margin:7mm 0 3mm">Selectable chips</h4>
+  <div>
+    <span class="chip"><svg viewBox="0 0 24 24" style="color:var(--navy-600)"><use href="#sp-cricket"/></svg>Cricket</span>
+    <span class="chip chip--on"><svg viewBox="0 0 24 24" style="color:var(--orange-500)"><use href="#sp-football"/></svg>Football</span>
+    <span class="chip"><svg viewBox="0 0 24 24" style="color:var(--navy-600)"><use href="#sp-badminton"/></svg>Badminton</span>
+    <span class="chip"><svg viewBox="0 0 24 24" style="color:var(--navy-600)"><use href="#sp-swimming"/></svg>Swimming</span>
+  </div>
+  <p class="note" style="margin-top:3mm">Selected state: orange border, 7% orange fill, orange text.</p>
+
+  <h4 style="font-size:11pt;margin:7mm 0 3mm">Form fields</h4>
+  <div class="two">
+    <div>
+      <div class="field"><label>Your name *</label><div class="inp">Rest &mdash; 12px radius</div></div>
+      <div class="field"><label>Phone number *</label><div class="inp focus">Focus &mdash; orange ring</div></div>
+    </div>
+    <div class="cardex"><h4>Card</h4><p>18px radius, 1px sand border, white fill. Lifts 5px with a soft shadow on hover.</p></div>
+  </div>
+
+  <h4 style="font-size:11pt;margin:7mm 0 3mm">Corner radii</h4>
+  <div class="radii">
+    <div style="border-radius:8px">8px<br>small</div>
+    <div style="border-radius:12px">12px<br>fields</div>
+    <div style="border-radius:18px">18px<br>cards</div>
+    <div style="border-radius:100px">pill<br>buttons</div>
+  </div>
+  <p class="note" style="margin-top:3mm">Nothing on this brand has a sharp corner. If it looks square, it is wrong.</p>
+  <span class="brandline">Second Innings</span><span class="pagenum">06</span>
+</section>
+
+<!-- ============ 7 INSTAGRAM ============ -->
+<section class="page">
+  <p class="eyebrow">06 &mdash; Instagram</p>
+  <h2 class="sec">The same system, at 1080&nbsp;px.</h2>
+  <p>Three layouts cover almost everything you will ever post. Build them once in Canva as templates and reuse them &mdash; consistency is what makes a small account look established.</p>
+
+  <div class="ig-row" style="margin:7mm 0">
+    <div>
+      <div class="ig ig--post"><div class="ig__inner">
+        <div class="ig__eyebrow">What we do</div>
+        <div><div class="ig__h">Every bat deserves a second innings.</div></div>
+        <div class="ig__foot">@projectsecondinnings</div>
+      </div></div>
+      <p class="note" style="margin-top:2mm;text-align:center"><strong>Portrait</strong><br>1080&times;1350</p>
+    </div>
+    <div>
+      <div class="ig ig--sq"><div class="ig__inner cream">
+        <div class="ig__eyebrow" style="color:var(--orange-500)">This week</div>
+        <div><div class="ig__h" style="font-size:16pt">63</div><div style="font-size:6pt;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-top:1mm">Items rescued</div></div>
+        <div class="ig__foot dark">secondinnings.org.in</div>
+      </div></div>
+      <p class="note" style="margin-top:2mm;text-align:center"><strong>Square</strong><br>1080&times;1080</p>
+    </div>
+    <div>
+      <div class="ig ig--story"><div class="ig__inner" style="background:var(--orange-500)">
+        <div class="ig__eyebrow" style="color:rgba(255,255,255,.8)">Collection drive</div>
+        <div><div class="ig__h" style="font-size:11pt">Saturday, 10am</div></div>
+        <div class="ig__foot" style="color:rgba(255,255,255,.85)">Swipe up</div>
+      </div></div>
+      <p class="note" style="margin-top:2mm;text-align:center"><strong>Story</strong><br>1080&times;1920</p>
+    </div>
+    <div style="flex:1">
+      <h4 style="font-size:10.5pt;margin-bottom:3mm">Sizes at 1080&nbsp;px</h4>
+      <ul class="spec-list">
+        <li><span>Margin (safe area)</span><strong>72 px</strong></li>
+        <li><span>Eyebrow</span><strong>26 px / 600</strong></li>
+        <li><span>Headline (Fraunces)</span><strong>84&ndash;104 px</strong></li>
+        <li><span>Body (Inter)</span><strong>34 px / 1.5</strong></li>
+        <li><span>Big number</span><strong>190 px</strong></li>
+        <li><span>Handle / footer</span><strong>24 px</strong></li>
+        <li><span>Corner radius</span><strong>48 px</strong></li>
+      </ul>
+      <p class="note" style="margin-top:3mm">Story text must stay inside the top and bottom 250&nbsp;px or the app UI covers it.</p>
+    </div>
+  </div>
+
+  <hr>
+  <div class="three">
+    <div class="box"><h4>Grid rhythm</h4><p>Alternate navy, cream and photo posts so the profile grid reads as a pattern rather than a pile. Never three navy in a row.</p></div>
+    <div class="box"><h4>Photos</h4><p>Real photos always beat graphics. A slightly blurry photo of a real handover outperforms a perfect illustration every time.</p></div>
+    <div class="box"><h4>Consent</h4><p>Never post a child's face or name without written permission from the school and the family. No exceptions, including stories.</p></div>
+  </div>
+  <span class="brandline">Second Innings</span><span class="pagenum">07</span>
+</section>
+
+<!-- ============ 8 VOICE ============ -->
+<section class="page">
+  <p class="eyebrow">07 &mdash; Voice</p>
+  <h2 class="sec">Plain, specific, never pitiful.</h2>
+  <p>We are matching supply with demand, not begging. The tone is a capable friend explaining something simple &mdash; warm, concrete and slightly understated. Understatement is what makes people believe you.</p>
+
+  <div class="two" style="margin-top:6mm">
+    <div class="box do">
+      <h4>Sounds like us</h4>
+      <p>&ldquo;That bat is not doing anything in there.&rdquo;<br><br>
+         &ldquo;63 items, 4 schools. Small numbers, honestly counted.&rdquo;<br><br>
+         &ldquo;Talent is spread evenly. Equipment is not.&rdquo;<br><br>
+         &ldquo;We collect from everywhere in Hyderabad.&rdquo;</p>
+    </div>
+    <div class="box dont">
+      <h4>Doesn't</h4>
+      <p>&ldquo;Help these poor underprivileged children!&rdquo;<br><br>
+         &ldquo;Empowering youth through the transformative power of sport.&rdquo;<br><br>
+         &ldquo;Thousands of lives changed!!&rdquo;<br><br>
+         &ldquo;Donate now &mdash; every rupee counts!&rdquo;</p>
+    </div>
+  </div>
+
+  <hr>
+  <h4 style="font-size:11pt;margin-bottom:3mm">Four habits</h4>
+  <div class="two">
+    <div class="box"><h4>Name the number</h4><p>&ldquo;Six footballs to one school&rdquo; beats &ldquo;many items to many schools&rdquo;. If the number is small, say the small number.</p></div>
+    <div class="box"><h4>Never invent impact</h4><p>One made-up figure a funder catches discredits everything else on the page. Where something is an estimate, say so.</p></div>
+    <div class="box"><h4>Dignity over pity</h4><p>Describe children as players, not victims. They are not lucky to receive; the equipment is lucky to be used.</p></div>
+    <div class="box"><h4>Short sentences</h4><p>If a sentence needs a comma to survive, cut it in two. Read it aloud &mdash; if you run out of breath, it is too long.</p></div>
+  </div>
+  <span class="brandline">Second Innings</span><span class="pagenum">08</span>
+</section>
+
+<!-- ============ 9 QUICK REF ============ -->
+<section class="page" style="background:var(--navy-900);color:var(--cream)">
+  <p class="eyebrow" style="color:var(--amber-400)">Quick reference</p>
+  <h2 class="sec" style="color:#fff">Everything on one page.</h2>
+
+  <div class="two" style="margin-top:8mm">
+    <div>
+      <h4 style="font-size:10.5pt;color:var(--amber-400);margin-bottom:3mm">Colour</h4>
+      <ul class="spec-list" style="--x:0">
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Navy 800</span><strong style="color:#fff">#0A2740</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Navy 600</span><strong style="color:#fff">#134063</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Orange 500</span><strong style="color:#fff">#E1601F</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Amber 400</span><strong style="color:#fff">#F2A81D</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Green 400</span><strong style="color:#fff">#3E9E44</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Blue 500</span><strong style="color:#fff">#1C6BA8</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Cream</span><strong style="color:#fff">#FBF9F6</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Ink</span><strong style="color:#fff">#0A1E2E</strong></li>
+      </ul>
+    </div>
+    <div>
+      <h4 style="font-size:10.5pt;color:var(--amber-400);margin-bottom:3mm">Type &amp; shape</h4>
+      <ul class="spec-list">
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Display</span><strong style="color:#fff">Fraunces 500</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Body</span><strong style="color:#fff">Inter 400/600</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Heading tracking</span><strong style="color:#fff">-0.022em</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Eyebrow tracking</span><strong style="color:#fff">+0.18em</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Field radius</span><strong style="color:#fff">12 px</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Card radius</span><strong style="color:#fff">18 px</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Button radius</span><strong style="color:#fff">100 px (pill)</strong></li>
+        <li style="border-color:rgba(255,255,255,.14)"><span style="color:#A9C0D4">Icon stroke</span><strong style="color:#fff">1.5 px, round</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:10mm;padding:6mm;border:1px solid rgba(255,255,255,.16);border-radius:4mm">
+    <h4 style="font-size:10.5pt;color:#fff;margin-bottom:2mm">If you remember only three things</h4>
+    <p style="color:#A9C0D4;font-size:9pt;margin:0">
+      1. Cream background, navy text, orange for one action only.<br>
+      2. Fraunces for the big line, Inter for everything else.<br>
+      3. Nothing has a sharp corner, and no number is ever invented.
+    </p>
+  </div>
+
+  <span class="brandline" style="color:#6E8AA3">Second Innings &mdash; extending the life of sport</span>
+  <span class="pagenum" style="color:#6E8AA3">09</span>
+</section>
+
+</body>
+</html>
