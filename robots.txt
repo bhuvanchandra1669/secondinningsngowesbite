@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Replace the domain below once the site is live.
+Sitemap: https://secondinnings.org.in/sitemap.xml
