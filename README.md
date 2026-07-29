@@ -165,16 +165,37 @@ Hyderabad and operates in no other city. If that changes, the places to update a
 
 ## Publishing it
 
-**Easiest — Netlify Drop.** Go to [app.netlify.com/drop](https://app.netlify.com/drop)
-and drag this whole folder onto the page. It's live in about ten seconds, free,
-with HTTPS. To update, drag it again.
+This folder is a git repository with everything committed on `main`.
 
-**Better long-term — Vercel or Netlify connected to GitHub.** Push this folder to a
-GitHub repo, connect it, and every change you push goes live automatically. Also free.
+**First time — push to GitHub.** Authenticate once, then create the repo:
+
+```bash
+gh auth login
+```
+
+```bash
+gh repo create secondinningsngowewsbite --source=. --private --push
+```
+
+Swap `--private` for `--public` if you'd rather the code be open.
+
+**Deploy on Vercel.** Go to [vercel.com/new](https://vercel.com/new), import the repo,
+and press Deploy. **No configuration needed** — there's no build step, so leave the
+framework preset as "Other" and every setting on its default. It'll be live in under a
+minute on a `*.vercel.app` address.
+
+**After that, updating the site is three commands:**
+
+```bash
+git add -A && git commit -m "Describe what changed" && git push
+```
+
+Vercel redeploys automatically on every push. Nothing else to do.
 
 **Your domain.** Buy `secondinnings.org.in` or similar (~₹800–1,500/year from
-Namecheap, GoDaddy or BigRock), then point it at your host — both Netlify and Vercel
-walk you through it. This is the only thing about this website that costs money.
+Namecheap, GoDaddy or BigRock), then add it under Vercel → Project → Settings →
+Domains and follow the DNS instructions. This is the only thing about this website
+that costs money.
 
 ---
 
