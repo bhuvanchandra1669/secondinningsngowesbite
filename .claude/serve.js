@@ -34,7 +34,11 @@ http.createServer((req, res) => {
       res.end('<h1>404</h1><p>Not found: ' + rel + '</p>');
       return;
     }
-    res.writeHead(200, { 'Content-Type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream' });
+    res.writeHead(200, {
+      'Content-Type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream',
+      // Local preview only: never cache, so CSS/JS edits show on reload.
+      'Cache-Control': 'no-store, must-revalidate'
+    });
     res.end(data);
   });
 }).listen(PORT, () => console.log('Second Innings running at http://localhost:' + PORT));

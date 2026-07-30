@@ -102,7 +102,11 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
+  /* Stops iOS inflating text in landscape */
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Default grey flash on tap looks broken against warm cream */
+  -webkit-tap-highlight-color: rgba(226, 96, 31, 0.16);
   scroll-behavior: smooth;
 }
 
@@ -1299,7 +1303,10 @@ a.card:hover, .card--hover:hover {
   border-radius: clamp(16px, 3vw, 26px);
   overflow: hidden;
   display: grid;
-  grid-template-columns: 0.92fr 1.08fr;
+  /* minmax(0, …) not plain fr. A bare `1fr` carries an implicit `auto`
+     minimum, so the column grows to its content's min-content width and
+     blows out of the panel — 520px inside a 375px sheet. */
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
   min-height: min(560px, calc(100vh - 4rem));
   max-height: calc(100vh - 2rem);
   box-shadow: 0 40px 90px -30px rgba(7, 28, 48, 0.55);
@@ -1750,7 +1757,9 @@ button.member:hover h3 { color: var(--accent); }
 .field label .req { color: var(--accent); }
 .field input, .field select, .field textarea {
   font-family: inherit;
-  font-size: 0.96rem;
+  /* Must not drop below 16px. Safari on iOS auto-zooms the whole page when a
+     smaller field is focused, and never zooms back out. */
+  font-size: 1rem;
   color: var(--text);
   padding: 0.95rem 1.15rem;
   border: 1px solid var(--sand-line);
@@ -1807,6 +1816,10 @@ button.member:hover h3 { color: var(--accent); }
   width: 21px; height: 21px;
   flex: none;
   margin: 0;
+  /* These checkboxes sit inside .field, so the generic input padding above
+     applies to them too and inflates the 21px box to ~40x33. Reset it. */
+  padding: 0;
+  min-width: 0;
   border: 1.5px solid var(--sand-line);
   border-radius: 7px;
   background: #fff;
@@ -1921,6 +1934,77 @@ button.member:hover h3 { color: var(--accent); }
   .btn { width: 100%; justify-content: center; }
   .btn-row { flex-direction: column; }
   .nav__burger { display: grid; }
+
+  /* Comfortable thumb targets */
+  .check { padding: 0.85rem 1.1rem; }
+  .sport { padding: 0.85rem 1.05rem; }
+  .footer__social a { width: 44px; height: 44px; }
+
+  /* Marquee runs a touch faster and smaller so it doesn't dominate */
+  .marquee { --speed: 30s; padding-block: 0.9rem; }
+  .marquee__icon { width: 21px; height: 21px; }
+  .marquee__item::after { margin-left: 1.5rem; }
+  .marquee__track { gap: 1.9rem; padding-right: 1.9rem; }
+
+  .quote blockquote { text-wrap: pretty; }
+  .step { grid-template-columns: 44px 1fr; gap: 0.75rem 1rem; }
+}
+
+/* Very narrow Androids (380px and below) */
+@media (max-width: 380px) {
+  .sports-grid { grid-template-columns: 1fr 1fr; }
+  .sport { font-size: 0.84rem; padding: 0.8rem 0.85rem; gap: 0.5rem; }
+  .sport__icon { width: 19px; height: 19px; }
+  .hero__meta-item strong { font-size: 1.85rem; }
+  /* 0.72rem = 11.5px, the floor for legible tracked uppercase */
+  .hero__meta-item span { font-size: 0.72rem; letter-spacing: 0.03em; }
+}
+
+/* Nothing should render below ~11.5px on a phone held at arm's length */
+@media (max-width: 700px) {
+  /* The tagline is decorative and unreadable at this size — the wordmark
+     carries the brand on its own, and dropping it gives the name room. */
+  .brand__tag { display: none; }
+  .brand__name { font-size: 1.08rem; }
+  .door__label { font-size: 0.74rem; }
+  .photo-ph span { font-size: 0.72rem; }
+  /* the compact variant sets 0.66rem with higher specificity, so match it */
+  .member__role, .modal__role,
+  .team-grid--compact .member__role { font-size: 0.72rem; }
+  .footer__bottom { font-size: 0.8rem; }
+
+  /* Text links need a real tap area, not just their line box */
+  .link-arrow { padding-block: 0.5rem; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Modal on phones — a full-height sheet rather than a shrunken card.  */
+/* A 940px two-column panel squeezed into 360px is unreadable.         */
+/* ------------------------------------------------------------------ */
+@media (max-width: 780px) {
+  .modal {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+  }
+  .modal__panel {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    min-height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+  /* The media row gets the ratio; its children just fill it. Putting
+     height:100% on a child of an auto-height row is circular. */
+  .modal__media { aspect-ratio: 4/3; min-height: 0; height: auto; min-width: 0; }
+  .modal__media .photo-ph, .modal__media .img-hold { aspect-ratio: auto; height: 100%; }
+  .modal__body { min-height: 0; min-width: 0; -webkit-overflow-scrolling: touch; }
+  .modal__close {
+    top: 0.75rem; right: 0.75rem;
+    background: rgba(251, 249, 246, 0.96);
+    box-shadow: 0 2px 10px rgba(7, 28, 48, 0.18);
+  }
 }
 
 /* ------------------------------------------------------------------ */
