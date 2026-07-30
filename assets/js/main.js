@@ -412,6 +412,117 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Member modal                                                        */
+  /*                                                                     */
+  /* Uses the native <dialog>, which gives us the top layer, ::backdrop  */
+  /* and Esc-to-close for free. We only add: scroll lock, backdrop-click */
+  /* to dismiss, and returning focus to the card that opened it.         */
+  /* ------------------------------------------------------------------ */
+
+  function initModals() {
+    const openers = document.querySelectorAll('[data-open-modal]');
+    if (!openers.length) return;
+
+    let lastFocused = null;
+
+    const close = (dialog) => {
+      if (dialog.open) dialog.close();
+    };
+
+    openers.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const dialog = document.getElementById(btn.dataset.openModal);
+        if (!dialog) return;
+
+        // <dialog> is unsupported on some older Androids — fall back to the
+        // team page rather than doing nothing at all.
+        if (typeof dialog.showModal !== 'function') {
+          const href = btn.dataset.fallbackHref;
+          if (href) window.location.href = href;
+          return;
+        }
+
+        lastFocused = btn;
+        dialog.showModal();
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    document.querySelectorAll('dialog.modal').forEach((dialog) => {
+      dialog.querySelectorAll('[data-close-modal]').forEach((btn) => {
+        btn.addEventListener('click', () => close(dialog));
+      });
+
+      // Click outside the panel dismisses. The dialog element itself fills
+      // the viewport, so anything not inside .modal__panel is "outside".
+      dialog.addEventListener('click', (e) => {
+        if (!e.target.closest('.modal__panel')) close(dialog);
+      });
+
+      dialog.addEventListener('close', () => {
+        document.body.style.overflow = '';
+        if (lastFocused) { lastFocused.focus(); lastFocused = null; }
+      });
+    });
+
+    // Deep link: arriving at team.html#m-ops opens that person straight away,
+    // which is what the cards on the About page link to.
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      const target = document.getElementById(hash);
+      if (target && target.matches('dialog.modal') && typeof target.showModal === 'function') {
+        target.showModal();
+        document.body.style.overflow = 'hidden';
+      }
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Image loading states                                                */
+  /*                                                                     */
+  /* Any <img> inside .img-hold gets a shimmering plate until it decodes. */
+  /* Handles the cached case too, where load has already fired.           */
+  /* ------------------------------------------------------------------ */
+
+  function initImageLoading() {
+    document.querySelectorAll('.img-hold').forEach((hold) => {
+      const img = hold.querySelector('img');
+      if (!img) { hold.classList.add('is-loaded'); return; }
+
+      const done = () => hold.classList.add('is-loaded');
+
+      if (img.complete && img.naturalWidth > 0) { done(); return; }
+      img.addEventListener('load', done, { once: true });
+      // A broken src should still clear the shimmer — an endless spinner is
+      // worse than a visible gap.
+      img.addEventListener('error', done, { once: true });
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Submit spinner                                                      */
+  /*                                                                     */
+  /* The real forms POST to FormSubmit and the browser navigates away.   */
+  /* Without this the button looks dead for a second or two on 4G.       */
+  /* ------------------------------------------------------------------ */
+
+  function initSubmitState() {
+    document.querySelectorAll('form[action]').forEach((form) => {
+      form.addEventListener('submit', () => {
+        if (!form.checkValidity()) return;
+        const btn = form.querySelector('[type="submit"]');
+        if (!btn || btn.classList.contains('is-busy')) return;
+
+        btn.classList.add('is-busy');
+        btn.setAttribute('aria-busy', 'true');
+        const label = btn.querySelector('.btn__label') || btn;
+        btn.insertAdjacentHTML('afterbegin', '<span class="spinner" aria-hidden="true"></span>');
+        if (label !== btn) label.textContent = 'Sending…';
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Current year in the footer                                          */
   /* ------------------------------------------------------------------ */
 
@@ -443,6 +554,9 @@
       initParallax,
       initSplitHeadings,
       initForms,
+      initModals,
+      initImageLoading,
+      initSubmitState,
       initYear
     ];
 

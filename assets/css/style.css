@@ -805,6 +805,84 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
 }
 .js .figure.is-in::after { transform: scaleX(0); }
 
+/* ------------------------------------------------------------------ */
+/* LOADING STATES — skeletons & spinners                               */
+/* ------------------------------------------------------------------ */
+
+/* Shimmer sweep. Used on photo placeholders and on real images while
+   they download, so an empty slot reads as "loading" not "broken". */
+@keyframes shimmer {
+  0%   { background-position: -140% 0; }
+  100% { background-position: 240% 0; }
+}
+.skeleton,
+.js .photo-ph::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.55) 42%,
+    rgba(255, 255, 255, 0.75) 50%,
+    rgba(255, 255, 255, 0.55) 58%,
+    transparent 80%);
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 2.4s linear infinite;
+  pointer-events: none;
+}
+.section--dark .photo-ph::after {
+  background-image: linear-gradient(100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.07) 45%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.07) 55%,
+    transparent 80%);
+}
+
+/* Real images: hold a shimmering plate until the file has decoded.
+   main.js adds .is-loaded once the image fires load. */
+.img-hold {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--cream-2);
+}
+.img-hold::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.6) 50%, transparent 80%);
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 2.4s linear infinite;
+  transition: opacity 0.5s var(--ease-out);
+}
+.img-hold img {
+  display: block;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-out);
+}
+.img-hold.is-loaded::after { opacity: 0; animation: none; }
+.img-hold.is-loaded img { opacity: 1; }
+
+/* Spinner — buttons mid-submit, and the modal while a photo loads */
+.spinner {
+  width: 16px; height: 16px;
+  flex: none;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  display: inline-block;
+}
+.spinner--lg { width: 30px; height: 30px; border-width: 2.5px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.btn.is-busy { pointer-events: none; opacity: 0.75; }
+.btn.is-busy .btn-arrow { display: none; }
+
 /* Photo placeholder — clearly marked so nothing fake ships by accident */
 .photo-ph {
   position: relative;
@@ -1192,6 +1270,139 @@ a.card:hover, .card--hover:hover {
 @media (max-width: 560px) {
   .team-grid--compact { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ------------------------------------------------------------------ */
+/* MEMBER MODAL — native <dialog>, so Esc and the top layer come free  */
+/* ------------------------------------------------------------------ */
+
+.modal {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  width: min(940px, calc(100vw - 2rem));
+  max-width: none;
+  max-height: calc(100vh - 2rem);
+  margin: auto;
+  overflow: visible;
+}
+.modal::backdrop {
+  background: rgba(7, 28, 48, 0.62);
+  backdrop-filter: blur(9px) saturate(120%);
+  -webkit-backdrop-filter: blur(9px) saturate(120%);
+}
+
+/* Entry animation. `allow-discrete` lets display animate, so the panel
+   scales in rather than snapping. */
+.modal__panel {
+  position: relative;
+  background: var(--cream);
+  border-radius: clamp(16px, 3vw, 26px);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr;
+  min-height: min(560px, calc(100vh - 4rem));
+  max-height: calc(100vh - 2rem);
+  box-shadow: 0 40px 90px -30px rgba(7, 28, 48, 0.55);
+}
+.modal[open] .modal__panel { animation: modalIn 0.45s var(--ease-out) both; }
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.975); }
+  to   { opacity: 1; transform: none; }
+}
+
+.modal__media {
+  position: relative;
+  background: var(--cream-2);
+  min-height: 100%;
+}
+/* aspect-ratio must be cleared or it fights the 100% height and squashes
+   the panel down to a 4:3 box. */
+.modal__media .photo-ph,
+.modal__media .img-hold {
+  aspect-ratio: auto;
+  height: 100%;
+  border-radius: 0;
+  border: 0;
+}
+.modal__media img { width: 100%; height: 100%; object-fit: cover; }
+
+.modal__body {
+  padding: clamp(1.75rem, 3.5vw, 2.75rem);
+  overflow-y: auto;
+}
+.modal__body h3 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: 0.35rem;
+  padding-right: 2.75rem; /* clear the close button */
+}
+.modal__role {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.25rem;
+}
+.modal__body p { font-size: 0.96rem; color: var(--text-soft); }
+
+.modal__close {
+  position: absolute;
+  top: 0.9rem; right: 0.9rem;
+  z-index: 5;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--sand-line);
+  background: rgba(251, 249, 246, 0.92);
+  backdrop-filter: blur(6px);
+  color: var(--navy-700);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 0.3s var(--ease-out), transform 0.3s var(--ease-out),
+              color 0.3s var(--ease-out);
+}
+.modal__close:hover {
+  background: var(--navy-800);
+  color: #fff;
+  border-color: var(--navy-800);
+  transform: rotate(90deg);
+}
+
+@media (max-width: 780px) {
+  .modal__panel { grid-template-columns: 1fr; }
+  .modal__media { aspect-ratio: 4/3; min-height: 0; }
+}
+
+/* The card that opens it */
+button.member {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+.member__zoom {
+  position: absolute;
+  bottom: 0.7rem; right: 0.7rem;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(251, 249, 246, 0.9);
+  backdrop-filter: blur(4px);
+  color: var(--navy-700);
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
+}
+button.member:hover .member__zoom,
+button.member:focus-visible .member__zoom { opacity: 1; transform: none; }
+button.member:hover h3 { color: var(--accent); }
+.member__photo { position: relative; }
 
 /* Sport chips */
 .sports-grid {
@@ -1587,14 +1798,32 @@ a.card:hover, .card--hover:hover {
               color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
   user-select: none;
 }
+/* Fully custom box — the native control stays hollow when the chip is tinted,
+   which reads as "not selected" even though it is. Checked = solid orange
+   fill with a white tick, so the box matches the chip. */
 .check input {
-  width: 16px; height: 16px;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 21px; height: 21px;
   flex: none;
-  accent-color: var(--orange-500);
+  margin: 0;
+  border: 1.5px solid var(--sand-line);
+  border-radius: 7px;
+  background: #fff;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
   cursor: pointer;
+  transition: background-color 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+}
+.check input:checked {
+  background-color: var(--orange-500);
+  border-color: var(--orange-500);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5.5 5.5L20 6.5'/%3E%3C/svg%3E");
 }
 .check__icon { width: 19px; height: 19px; flex: none; color: var(--navy-600); transition: color 0.3s; }
 .check:hover { border-color: var(--orange-400); background: #fff; transform: translateY(-1px); }
+.check:hover input { border-color: var(--orange-400); }
 .check:has(input:checked) {
   border-color: var(--orange-500);
   background: rgba(226, 96, 31, 0.07);

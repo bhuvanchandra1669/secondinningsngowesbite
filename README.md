@@ -229,6 +229,26 @@ from a CDN. **If they fail to load, the site still works** — `main.js` falls b
 plain IntersectionObserver and the story becomes a simple stacked sequence. Nothing
 on this site depends on JavaScript to be readable.
 
+**The team modals.** Each person on `team.html` is a `<button>` that opens a native
+`<dialog>` — one per person, sitting just before `</main>`. Native `<dialog>` gives us
+the blurred backdrop (`::backdrop`), Esc-to-close and correct stacking for free; the
+only JS is the scroll lock, backdrop-click-to-dismiss and returning focus to the card.
+
+The cards on `about.html` link to `team.html#m-ops` and friends, and `main.js` opens
+that person's modal on arrival — so clicking a face on About lands you on the team page
+with the popup already open. Each modal has a commented-out `<img>` showing exactly
+where the real portrait goes.
+
+**Loading states.** Three things, all in `style.css` under "LOADING STATES":
+
+- Empty photo slots (`.photo-ph`) carry a slow shimmer so they read as "coming" rather
+  than broken.
+- Real images wrapped in `.img-hold` show a shimmering plate until the file decodes.
+  `main.js` adds `.is-loaded` on the image's `load` event — and also on `error`, because
+  a spinner that never stops is worse than a visible gap.
+- Submit buttons swap their label for a spinner and "Sending…" on submit, so the button
+  doesn't look dead for the second or two FormSubmit takes on mobile data.
+
 **One convention to know if you edit the CSS.** Every rule that *hides* something
 until JavaScript reveals it is scoped to `.js` — a class added to `<html>` by a
 one-line script in each page's `<head>`. That way, if the JS ever fails, none of the
