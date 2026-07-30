@@ -426,6 +426,12 @@
     let lastFocused = null;
 
     const close = (dialog) => {
+      if (dialog.classList.contains('modal--inline')) {
+        dialog.removeAttribute('open');
+        dialog.classList.remove('modal--inline');
+        document.body.style.overflow = '';
+        return;
+      }
       if (dialog.open) dialog.close();
     };
 
@@ -434,11 +440,13 @@
         const dialog = document.getElementById(btn.dataset.openModal);
         if (!dialog) return;
 
-        // <dialog> is unsupported on some older Androids — fall back to the
-        // team page rather than doing nothing at all.
+        // <dialog> is unsupported on pre-15.4 Safari. Rather than sending the
+        // user to a dead anchor, reveal the panel inline where it already sits
+        // in the document and scroll to it.
         if (typeof dialog.showModal !== 'function') {
-          const href = btn.dataset.fallbackHref;
-          if (href) window.location.href = href;
+          dialog.setAttribute('open', '');
+          dialog.classList.add('modal--inline');
+          dialog.scrollIntoView({ block: 'center', behavior: 'smooth' });
           return;
         }
 

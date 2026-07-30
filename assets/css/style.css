@@ -422,8 +422,10 @@ p:last-child { margin-bottom: 0; }
   letter-spacing: -0.02em;
 }
 .brand__tag {
-  font-size: 0.6rem;
-  letter-spacing: 0.13em;
+  /* 0.67rem = 10.7px. Below ~10.5 tracked uppercase stops being readable;
+     it is hidden outright under 700px where the wordmark carries the brand. */
+  font-size: 0.67rem;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--ink-mute);
   font-weight: 500;
@@ -1092,8 +1094,8 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
 .door--need .door__bg { background: linear-gradient(150deg, var(--blue-500), var(--navy-600) 55%, var(--green-500)); }
 
 .door__label {
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--amber-400);
   font-weight: 600;
@@ -1289,6 +1291,23 @@ a.card:hover, .card--hover:hover {
   margin: auto;
   overflow: visible;
 }
+/* No-<dialog> fallback: the panel renders inline in the page flow instead of
+   in the top layer. Only reachable on pre-2022 Safari. */
+.modal.modal--inline {
+  position: static;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: none;
+  margin: 2rem 0;
+}
+.modal.modal--inline .modal__panel {
+  min-height: 0;
+  max-height: none;
+  border-radius: var(--radius-lg);
+}
+
 .modal::backdrop {
   background: rgba(7, 28, 48, 0.62);
   backdrop-filter: blur(9px) saturate(120%);
@@ -2005,6 +2024,60 @@ button.member:hover h3 { color: var(--accent); }
     background: rgba(251, 249, 246, 0.96);
     box-shadow: 0 2px 10px rgba(7, 28, 48, 0.18);
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* TOUCH DEVICES — no hover, so hover-only affordances never appear    */
+/*                                                                      */
+/* Anything whose only cue is :hover is invisible to a phone user.      */
+/* Give those elements their revealed state permanently instead.        */
+/* ------------------------------------------------------------------ */
+
+@media (hover: none) {
+  /* The expand icon on a team card was hover-only — nobody on a phone
+     would ever know the card opens something. */
+  .member__zoom { opacity: 1; transform: none; }
+
+  /* Text links get a permanent underline rather than a wipe-in one */
+  .link-arrow { background-size: 100% 1.5px; }
+
+  /* Kill lift/scale transforms that can only be triggered by a cursor,
+     so tapping doesn't leave an element stuck in its hover state. */
+  a.card:hover, .card--hover:hover,
+  .sport:hover, .check:hover, .member:hover { transform: none; }
+  a.card:hover { box-shadow: none; border-color: var(--sand-line); }
+  .door:hover .door__bg { transform: none; }
+  .brand:hover img { transform: none; }
+}
+
+/* ------------------------------------------------------------------ */
+/* PHONE IN LANDSCAPE — short viewport, plenty of width                */
+/* ------------------------------------------------------------------ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  /* 7rem + 7.5rem of padding inside a 375px-tall viewport leaves almost
+     nothing for the content. */
+  .hero {
+    min-height: 0;
+    padding-top: 5.5rem;
+    padding-bottom: 3rem;
+  }
+  .section { padding-block: 3.25rem; }
+  .page-hero { padding-top: 6rem; padding-bottom: 2.5rem; }
+
+  /* The full-screen mobile menu has to scroll rather than clip */
+  .mobile-menu { padding-top: 5rem; }
+  .mobile-menu a { font-size: 1.4rem; padding-block: 0.16em; }
+  .mobile-menu__foot { margin-top: 1.25rem; }
+
+  /* Two columns again — there is width to spare, just no height */
+  .modal__panel {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 0;
+  }
+  .modal__media { aspect-ratio: auto; height: 100%; }
+  .modal__media .photo-ph, .modal__media .img-hold { aspect-ratio: auto; height: 100%; }
 }
 
 /* ------------------------------------------------------------------ */
