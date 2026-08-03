@@ -921,6 +921,28 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
   transition: opacity 0.85s var(--ease-out), transform 0.85s var(--ease-out);
 }
 
+/* Scroll-scrubbed "big moments" — a handful of elements per page (mission
+   statement, the pull-quote, the closing CTA line) that move continuously
+   with scroll position on desktop instead of firing once on entry. See
+   initScrubReveals in main.js. Bigger displacement + a scale-in than the
+   plain reveal above, because these are meant to read as deliberate
+   set-pieces, not routine content entering the viewport.
+   Falls back to the same one-shot fade as [data-reveal] wherever GSAP,
+   a fine pointer, or motion itself isn't available — see initScrubReveals. */
+.js [data-scrub] {
+  opacity: 0;
+  transform: translateY(70px) scale(0.94);
+}
+.js [data-scrub].is-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 1s var(--ease-out), transform 1s var(--ease-out);
+}
+/* While GSAP ScrollTrigger owns an element it sets opacity/transform
+   inline every frame; kill the CSS transition so it doesn't fight the
+   scrub for control of the same properties mid-scroll. */
+.js [data-scrub].is-scrubbing { transition: none; }
+
 /* Image frames that wipe open */
 .figure {
   position: relative;

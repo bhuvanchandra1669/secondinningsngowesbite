@@ -215,6 +215,55 @@
     els.forEach((el) => io.observe(el));
   }
 
+  /* ------------------------------------------------------------------ */
+  /* Scroll-scrubbed "big moments"                                       */
+  /*                                                                     */
+  /* A small, hand-picked set of elements (marked [data-scrub] in the     */
+  /* HTML, not applied broadly) whose opacity/position/scale are tied     */
+  /* directly to scroll progress via GSAP ScrollTrigger's scrub option,   */
+  /* rather than firing once on entry like [data-reveal]. Deliberately   */
+  /* rare — see the CSS comment above [data-scrub] for why.               */
+  /*                                                                     */
+  /* Without GSAP, on touch, or under reduced-motion, these elements get */
+  /* the exact same one-shot fade as [data-reveal] instead — continuous  */
+  /* scrub is a desktop-only refinement, not something worth a fallback  */
+  /* animation loop for.                                                 */
+  /* ------------------------------------------------------------------ */
+
+  function initScrubReveals() {
+    const els = document.querySelectorAll('[data-scrub]');
+    if (!els.length) return;
+
+    const canScrub = hasGSAP() && isDesktop() && !prefersReduced;
+
+    if (!canScrub) {
+      if (prefersReduced || !('IntersectionObserver' in window)) {
+        els.forEach((el) => el.classList.add('is-in'));
+        return;
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-in');
+          io.unobserve(entry.target);
+        });
+      }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
+      els.forEach((el) => io.observe(el));
+      return;
+    }
+
+    els.forEach((el) => {
+      el.classList.add('is-scrubbing');
+      gsap.fromTo(el,
+        { opacity: 0, y: 70, scale: 0.94 },
+        {
+          opacity: 1, y: 0, scale: 1, ease: 'none',
+          scrollTrigger: { trigger: el, start: 'top 88%', end: 'top 45%', scrub: 0.6 }
+        }
+      );
+    });
+  }
+
   /* Stagger children automatically inside [data-reveal-group] */
   function initRevealGroups() {
     document.querySelectorAll('[data-reveal-group]').forEach((group) => {
@@ -723,6 +772,7 @@
       initPreloader,
       initRevealGroups,
       initReveals,
+      initScrubReveals,
       initNav,
       initNavCharSplit,
       initMagnetic,
