@@ -290,6 +290,12 @@
 
       if (prefersReduced) { el.textContent = format(target, el); return; }
 
+      // A small pop on the number's immediate wrapper (.stat__num, or the
+      // <strong> in the hero stat row) right as counting begins — the
+      // count-up alone reads as a UI detail; the pop makes it read as a
+      // moment.
+      if (el.parentElement) el.parentElement.classList.add('is-counting');
+
       const frame = (now) => {
         const p = Math.min((now - start) / dur, 1);
         // easeOutExpo — fast then settles, reads as "counting up"
