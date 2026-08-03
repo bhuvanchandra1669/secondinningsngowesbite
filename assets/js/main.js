@@ -119,6 +119,74 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Per-character nav hover                                             */
+  /*                                                                     */
+  /* Splits each desktop nav label into one <span> per visible character */
+  /* so :hover can run a staggered wave across it via animation-delay.   */
+  /* Skipped entirely on touch (no hover to trigger it) and reduced-      */
+  /* motion (a wave is motion for its own sake, not information).        */
+  /* ------------------------------------------------------------------ */
+
+  function initNavCharSplit() {
+    if (prefersReduced) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    document.querySelectorAll('.nav__links a').forEach((link) => {
+      // NOTE: guard attribute is deliberately NOT "data-split" — that
+      // attribute name is already used by initSplitHeadings() to select
+      // [data-split] elements. Reusing it here made these links match that
+      // selector too, and initSplitHeadings (which runs later in boot)
+      // clobbered these .ch spans with its own word-split markup.
+      if (link.dataset.charSplit === 'done') return;
+      const text = link.textContent;
+      let i = 0;
+      link.innerHTML = text
+        .split('')
+        .map((ch) => {
+          if (ch === ' ') return ' ';
+          const span = `<span class="ch" style="--i:${i}">${ch}</span>`;
+          i += 1;
+          return span;
+        })
+        .join('');
+      link.dataset.charSplit = 'done';
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Magnetic buttons                                                     */
+  /*                                                                     */
+  /* While the pointer is within a button's bounds, the button drifts a   */
+  /* few px toward it — a small, springy pull rather than a hard snap.    */
+  /* Desktop/fine-pointer only; the effect has no meaning on touch.       */
+  /* ------------------------------------------------------------------ */
+
+  function initMagnetic() {
+    if (prefersReduced) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    const MAX_PULL = 10;
+    const STRENGTH = 0.32;
+
+    document.querySelectorAll('.btn').forEach((btn) => {
+      btn.classList.add('btn--magnetic');
+
+      btn.addEventListener('pointermove', (e) => {
+        const r = btn.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height / 2);
+        const px = Math.max(-MAX_PULL, Math.min(MAX_PULL, dx * STRENGTH));
+        const py = Math.max(-MAX_PULL, Math.min(MAX_PULL, dy * STRENGTH));
+        btn.style.transform = `translate(${px}px, ${py}px)`;
+      });
+
+      btn.addEventListener('pointerleave', () => {
+        btn.style.transform = '';
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Reveal on scroll                                                    */
   /* ------------------------------------------------------------------ */
 
@@ -656,6 +724,8 @@
       initRevealGroups,
       initReveals,
       initNav,
+      initNavCharSplit,
+      initMagnetic,
       initCounters,
       initMarquee,
       initFaq,
