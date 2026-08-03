@@ -26,6 +26,22 @@
 
 <a class="skip-link" href="#main">Skip to content</a>
 
+<!-- ================= PAGE TRANSITION ================= -->
+<!-- A deliberate skeleton screen shown for ~1s before an internal link
+     finishes navigating — see initPageTransitions in main.js. Present on
+     every page since any page can be the one a visitor is leaving. -->
+<div class="page-transition" aria-hidden="true" data-page-transition>
+  <div class="pt-skel">
+    <div class="pt-skel__nav"></div>
+    <div class="pt-skel__eyebrow"></div>
+    <div class="pt-skel__h1"></div>
+    <div class="pt-skel__h1 pt-skel__h1--short"></div>
+    <div class="pt-skel__text"></div>
+    <div class="pt-skel__text"></div>
+    <div class="pt-skel__text pt-skel__text--short"></div>
+  </div>
+</div>
+
 <!-- ================= PRELOADER ================= -->
 <div class="preloader" aria-hidden="true">
   <div class="preloader__inner">
@@ -155,7 +171,7 @@
       </div>
 
       <div class="hero__mark-wrap">
-        <div class="hero__reveal-stack">
+        <div class="hero__mark-stack">
           <!-- The phrase runs ONCE around the circle. textLength is the exact
                circumference (2 x pi x r, r=40 -> 251.3) with lengthAdjust="spacing",
                so the letters spread to meet the start cleanly. Repeating the
@@ -167,76 +183,16 @@
             <text><textPath href="#ringPath" startOffset="0" textLength="251.3" lengthAdjust="spacing">Second Innings &#183; Extending the life of sport &#183;</textPath></text>
           </svg>
 
-          <!-- Cursor-reveal: a worn, muted bat sits underneath; moving the
-               pointer opens a spotlight onto the same bat refurbished and
-               back in play. Two identical-geometry SVGs, top one clipped to
-               a circle that tracks the pointer (see initHeroReveal in main.js). -->
-          <div class="hero__reveal" data-hero-reveal role="img" aria-label="A worn cricket bat, refurbished and back in play">
-            <div class="hero__reveal-base">
-            <svg viewBox="0 0 200 200">
-              <circle cx="100" cy="100" r="98" fill="var(--sand)"/>
-              <g transform="rotate(-16 100 100)">
-                <rect x="93" y="26" width="13" height="54" rx="6.5" fill="#8B8272"/>
-                <rect x="75" y="78" width="50" height="96" rx="8" fill="#B8A88E"/>
-                <rect x="75" y="78" width="10" height="96" rx="6" fill="#9A8A72" opacity=".6"/>
-                <rect x="75" y="166" width="50" height="8" rx="4" fill="#7E7264"/>
-                <g fill="#5C5245" opacity=".8">
-                  <ellipse cx="104" cy="106" rx="8" ry="3" transform="rotate(-12 104 106)"/>
-                  <ellipse cx="95" cy="128" rx="11" ry="2.6" transform="rotate(8 95 128)"/>
-                  <ellipse cx="108" cy="146" rx="6" ry="2.4" transform="rotate(-5 108 146)"/>
-                </g>
-              </g>
-            </svg>
+          <!-- The mark itself: a soft glow trails the pointer and the logo
+               tilts gently toward it, a nod to landonorris.com's cursor-driven
+               hero (see initHeroMark in main.js). Static and centred with no
+               fine pointer, or with reduced motion. -->
+          <div class="hero__logo-orb" data-hero-mark>
+            <span class="hero__logo-glow" aria-hidden="true"></span>
+            <img class="hero__logo-img" src="assets/img/mark-256.png" alt="Second Innings">
           </div>
-          <div class="hero__reveal-top">
-            <svg viewBox="0 0 200 200">
-              <circle cx="100" cy="100" r="98" fill="url(#revealGlow)"/>
-              <defs>
-                <radialGradient id="revealGlow" cx="35%" cy="30%" r="80%">
-                  <stop offset="0%" stop-color="#FCEFDD"/>
-                  <stop offset="55%" stop-color="var(--cream)"/>
-                  <stop offset="100%" stop-color="#F2E9DC"/>
-                </radialGradient>
-              </defs>
-              <g stroke="var(--amber-400)" stroke-width="2.2" stroke-linecap="round" opacity=".85">
-                <line x1="100" y1="10" x2="100" y2="27"/>
-                <line x1="163" y1="37" x2="151" y2="49"/>
-                <line x1="190" y1="100" x2="173" y2="100"/>
-                <line x1="163" y1="163" x2="151" y2="151"/>
-              </g>
-              <g transform="rotate(13 100 100) scale(1.04)" transform-origin="100 100">
-                <rect x="93" y="24" width="13" height="54" rx="6.5" fill="#2A3742"/>
-                <rect x="93" y="30" width="13" height="3" rx="1.5" fill="var(--orange-500)"/>
-                <rect x="93" y="38" width="13" height="3" rx="1.5" fill="var(--orange-500)"/>
-                <rect x="93" y="46" width="13" height="3" rx="1.5" fill="var(--orange-500)"/>
-                <rect x="93" y="54" width="13" height="3" rx="1.5" fill="var(--orange-500)"/>
-                <rect x="75" y="78" width="50" height="96" rx="8" fill="#E8C89A"/>
-                <rect x="75" y="78" width="10" height="96" rx="6" fill="#D2AE7E" opacity=".65"/>
-                <path d="M92 78 L100 55 L108 78 Z" fill="#DCBB8C"/>
-                <rect x="75" y="166" width="50" height="8" rx="4" fill="#C9A16A"/>
-              </g>
-              <g transform="translate(148,148)">
-                <circle r="15" fill="var(--red-500)"/>
-                <path d="M-11 -6a16 16 0 0 1 18 15" fill="none" stroke="#F4EFE6" stroke-width="1.5"/>
-                <g stroke="#F4EFE6" stroke-width="1" stroke-linecap="round">
-                  <line x1="-9" y1="-3" x2="-7" y2="0"/>
-                  <line x1="-4" y1="-7" x2="-2" y2="-4"/>
-                  <line x1="2" y1="-8" x2="3" y2="-5"/>
-                </g>
-              </g>
-              <g fill="var(--amber-400)" class="hero__reveal-sparks">
-                <path class="spark" d="M52 88 l2.2 5.4 5.4 2.2 -5.4 2.2 -2.2 5.4 -2.2 -5.4 -5.4 -2.2 5.4 -2.2z"/>
-                <path class="spark" d="M150 60 l1.8 4.4 4.4 1.8 -4.4 1.8 -1.8 4.4 -1.8 -4.4 -4.4 -1.8 4.4 -1.8z"/>
-              </g>
-            </svg>
-          </div>
-          <span class="hero__reveal-spot" aria-hidden="true"></span>
         </div>
-        </div>
-        <p class="hero__reveal-hint" data-hero-reveal-hint>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6M12 4v9m-4 3 4 4 4-4M6 13a6 6 0 0 0 12 0"/></svg>
-          Move to reveal
-        </p>
+        <p class="hero__tagline" data-hero-fade>Help a child achieve their sporting dream.</p>
       </div>
     </div>
   </div>
@@ -562,7 +518,7 @@
   <div class="wrap">
     <div class="section-head" style="max-width:58ch;">
       <p class="eyebrow" data-reveal>What we accept</p>
-      <h2 data-split>If a child can play with it, we want it.</h2>
+      <h2 data-split>Equipment we collect and repair.</h2>
       <p class="lead" data-reveal>
         Bats, balls, boots, pads, gloves and nets for cricket, football,
         badminton, basketball and volleyball. Used is fine. Scuffed is fine.

@@ -674,90 +674,79 @@
   /* motion gets a fixed partial reveal with no animation loop at all.    */
   /* ------------------------------------------------------------------ */
 
-  function initHeroReveal() {
-    const wrap = document.querySelector('[data-hero-reveal]');
-    if (!wrap) return;
+  function initHeroMark() {
+    const orb = document.querySelector('[data-hero-mark]');
+    if (!orb) return;
 
-    const top = wrap.querySelector('.hero__reveal-top');
-    const spot = wrap.querySelector('.hero__reveal-spot');
-    const hint = document.querySelector('[data-hero-reveal-hint]');
+    const glow = orb.querySelector('.hero__logo-glow');
+    const img = orb.querySelector('.hero__logo-img');
     const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-    if (prefersReduced) {
-      if (top) top.style.clipPath = 'circle(46% at 32% 42%)';
-      return;
-    }
+    // Static mark, no glow/tilt chase: reduced-motion, or no fine pointer
+    // to drive it (touch devices just get the plain logo).
+    if (prefersReduced || !hasFinePointer) return;
 
-    if (!hasFinePointer) {
-      wrap.classList.add('hero__reveal--auto');
-      return;
-    }
-
-    let w = wrap.clientWidth, h = wrap.clientHeight;
-    let fullRadius = Math.max(w, h) * 0.42;
-    let targetX = w / 2, targetY = h / 2;
-    let targetR = 0;
-    let curX = targetX, curY = targetY, curR = 0;
+    let w = orb.clientWidth, h = orb.clientHeight;
+    let targetGX = w / 2, targetGY = h / 2, targetOpacity = 0;
+    let curGX = targetGX, curGY = targetGY, curOpacity = 0;
+    let targetTiltX = 0, targetTiltY = 0;
+    let curTiltX = 0, curTiltY = 0;
     let raf = null;
-    let hintShown = false;
-    let hintHidden = false;
 
-    const paint = (x, y, r) => {
-      if (top) top.style.clipPath = `circle(${r}px at ${x}px ${y}px)`;
-      if (spot) {
-        spot.style.setProperty('--rx', x + 'px');
-        spot.style.setProperty('--ry', y + 'px');
-        spot.style.setProperty('--rr', r * 2 + 'px');
+    const paint = () => {
+      if (glow) {
+        glow.style.left = curGX + 'px';
+        glow.style.top = curGY + 'px';
+        glow.style.opacity = curOpacity;
+      }
+      if (img) {
+        img.style.transform = `perspective(600px) rotateX(${curTiltX}deg) rotateY(${curTiltY}deg)`;
       }
     };
 
     const tick = () => {
-      // Exponential smoothing rather than a linear step, so the reveal
-      // eases into place instead of trailing the pointer at constant speed.
-      curX += (targetX - curX) * 0.15;
-      curY += (targetY - curY) * 0.15;
-      curR += (targetR - curR) * 0.18;
-      paint(curX, curY, curR);
-      const settled = Math.abs(targetX - curX) < 0.3 && Math.abs(targetY - curY) < 0.3 && Math.abs(targetR - curR) < 0.3;
+      // Exponential smoothing so the glow trails the pointer and the tilt
+      // eases toward it, rather than snapping to a constant-speed step.
+      curGX += (targetGX - curGX) * 0.15;
+      curGY += (targetGY - curGY) * 0.15;
+      curOpacity += (targetOpacity - curOpacity) * 0.15;
+      curTiltX += (targetTiltX - curTiltX) * 0.12;
+      curTiltY += (targetTiltY - curTiltY) * 0.12;
+      paint();
+      const settled = Math.abs(targetGX - curGX) < 0.3 && Math.abs(targetGY - curGY) < 0.3 &&
+        Math.abs(targetOpacity - curOpacity) < 0.01 && Math.abs(targetTiltX - curTiltX) < 0.05 &&
+        Math.abs(targetTiltY - curTiltY) < 0.05;
       raf = settled ? null : requestAnimationFrame(tick);
     };
 
     const nudge = () => { if (!raf) raf = requestAnimationFrame(tick); };
 
-    wrap.addEventListener('pointermove', (e) => {
-      const r = wrap.getBoundingClientRect();
-      targetX = e.clientX - r.left;
-      targetY = e.clientY - r.top;
-      targetR = fullRadius;
-      nudge();
-      if (!hintHidden && hint) {
-        hint.classList.remove('is-visible');
-        hint.classList.add('is-hidden');
-        hintHidden = true;
-      }
-    });
-
-    wrap.addEventListener('pointerenter', () => {
-      if (!hintShown && hint) { hint.classList.add('is-visible'); hintShown = true; }
-    });
-
-    // Shrink the lens back to nothing rather than just recentring it —
-    // otherwise the "after" state stays visible dead-centre at rest, which
-    // undercuts the reason a visitor would bother moving their mouse.
-    wrap.addEventListener('pointerleave', () => {
-      targetR = 0;
+    orb.addEventListener('pointermove', (e) => {
+      const r = orb.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      targetGX = x;
+      targetGY = y;
+      targetOpacity = 1;
+      // -0.5..0.5 offset from centre drives a few degrees of tilt toward
+      // the pointer — horizontal offset rotates around the vertical axis
+      // and vice versa, so the mark leans into wherever the cursor is.
+      const nx = x / r.width - 0.5;
+      const ny = y / r.height - 0.5;
+      targetTiltY = nx * 16;
+      targetTiltX = -ny * 16;
       nudge();
     });
 
-    // Reveal the hint once on load even without a hover, so keyboard/touch
-    // users landing here via a screen reader summary aren't left guessing —
-    // it just never disappears for them, which is fine.
-    setTimeout(() => { if (!hintShown && hint) hint.classList.add('is-visible'); }, 700);
+    orb.addEventListener('pointerleave', () => {
+      targetOpacity = 0;
+      targetTiltX = 0;
+      targetTiltY = 0;
+      nudge();
+    });
 
     window.addEventListener('resize', () => {
-      w = wrap.clientWidth; h = wrap.clientHeight;
-      fullRadius = Math.max(w, h) * 0.42;
-      if (targetR > 0) targetR = fullRadius;
+      w = orb.clientWidth; h = orb.clientHeight;
     });
   }
 
@@ -786,6 +775,58 @@
 
   /* ------------------------------------------------------------------ */
   /* Current year in the footer                                          */
+  /* ------------------------------------------------------------------ */
+  /* Page transition — deliberate skeleton screen between pages           */
+  /*                                                                       */
+  /* Every internal link click is intercepted: the skeleton overlay shows */
+  /* immediately, and the real navigation only happens after a fixed ~1s  */
+  /* beat. This is a considered pause, not a performance workaround —     */
+  /* the delay is intentional even once the browser could navigate         */
+  /* instantly.                                                            */
+  /*                                                                       */
+  /* Left untouched: modified clicks (cmd/ctrl/shift/middle-click, which   */
+  /* open a new tab), external links, mailto/tel/hash links, and download  */
+  /* links — none of those should be delayed or hijacked.                  */
+  /* ------------------------------------------------------------------ */
+
+  function initPageTransitions() {
+    const overlay = document.querySelector('[data-page-transition]');
+    if (!overlay) return;
+
+    let navigating = false;
+
+    document.addEventListener('click', (e) => {
+      if (navigating) return;
+      if (e.defaultPrevented || e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+      const link = e.target.closest('a[href]');
+      if (!link || link.target === '_blank' || link.hasAttribute('download')) return;
+
+      const href = link.getAttribute('href');
+      if (!href || /^(#|mailto:|tel:|javascript:)/.test(href)) return;
+
+      let url;
+      try { url = new URL(href, window.location.href); } catch (err) { return; }
+      if (url.origin !== window.location.origin) return;
+      // Same page (identical path, hash ignored) — nothing will actually
+      // navigate, so a skeleton-then-reload would just be a pointless flash.
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+
+      e.preventDefault();
+      navigating = true;
+      overlay.classList.add('is-active');
+      setTimeout(() => { window.location.href = href; }, 1000);
+    });
+
+    // A back/forward restore from bfcache can bring this page back with
+    // .is-active still set from the instant the user navigated away —
+    // without this the overlay would be stuck covering the page.
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) { overlay.classList.remove('is-active'); navigating = false; }
+    });
+  }
+
   /* ------------------------------------------------------------------ */
 
   function initYear() {
@@ -821,8 +862,9 @@
       initForms,
       initModals,
       initImageLoading,
-      initHeroReveal,
+      initHeroMark,
       initSubmitState,
+      initPageTransitions,
       initYear
     ];
 

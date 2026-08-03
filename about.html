@@ -21,6 +21,22 @@
 <body>
 
 <a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ================= PAGE TRANSITION ================= -->
+<!-- A deliberate skeleton screen shown for ~1s before an internal link
+     finishes navigating — see initPageTransitions in main.js. Present on
+     every page since any page can be the one a visitor is leaving. -->
+<div class="page-transition" aria-hidden="true" data-page-transition>
+  <div class="pt-skel">
+    <div class="pt-skel__nav"></div>
+    <div class="pt-skel__eyebrow"></div>
+    <div class="pt-skel__h1"></div>
+    <div class="pt-skel__h1 pt-skel__h1--short"></div>
+    <div class="pt-skel__text"></div>
+    <div class="pt-skel__text"></div>
+    <div class="pt-skel__text pt-skel__text--short"></div>
+  </div>
+</div>
 <div class="scroll-progress" aria-hidden="true"></div>
 
 <header class="nav">

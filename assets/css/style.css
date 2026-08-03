@@ -749,7 +749,7 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
   flex-direction: column;
   align-items: center;
 }
-.hero__reveal-stack {
+.hero__mark-stack {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
@@ -765,90 +765,67 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
 }
 @keyframes ringSpin { to { transform: rotate(360deg); } }
 /* ------------------------------------------------------------------ */
-/* CURSOR-REVEAL — the hero centrepiece                                */
+/* LOGO ORB — the hero centrepiece                                     */
 /*                                                                      */
-/* Two identically-composed SVGs stacked in the same circle: a muted    */
-/* "before" bat underneath, a refurbished "after" bat on top, clipped   */
-/* to a circle that tracks the pointer (initHeroReveal in main.js).     */
-/* Touch devices get a slow automatic sweep instead of a cursor to      */
-/* chase; reduced-motion gets a fixed partial reveal.                   */
+/* The Second Innings mark sits centred in a soft dish of light. A     */
+/* blurred glow trails the pointer behind it and the mark itself tilts */
+/* a few degrees toward the pointer (initHeroMark in main.js) — a nod  */
+/* to landonorris.com's cursor-driven hero. Static on touch devices    */
+/* and with reduced motion.                                            */
 /* ------------------------------------------------------------------ */
 
-.hero__reveal {
+.hero__logo-orb {
   position: relative;
   width: 62%;
   aspect-ratio: 1;
   margin-inline: auto;
+  display: grid;
+  place-items: center;
   border-radius: 50%;
   overflow: hidden;
+  background: radial-gradient(circle at 35% 30%, #fff 0%, var(--cream) 55%, #F2E9DC 100%);
   box-shadow: 0 30px 70px -30px rgba(10, 30, 46, 0.4), 0 0 0 1px rgba(10, 30, 46, 0.05);
-  cursor: none;
   animation: floaty 7s var(--ease-in-out) infinite alternate;
 }
-.hero__reveal-base, .hero__reveal-top {
+.hero__logo-glow {
   position: absolute;
-  inset: 0;
-}
-.hero__reveal-base svg, .hero__reveal-top svg { width: 100%; height: 100%; display: block; }
-.hero__reveal-top {
-  clip-path: circle(0px at 50% 50%);
-  will-change: clip-path;
-}
-.hero__reveal-sparks .spark { transform-box: fill-box; transform-origin: center; animation: twinkle 1.8s var(--ease-in-out) infinite; }
-.hero__reveal-sparks .spark:nth-child(2) { animation-delay: .5s; }
-
-/* A soft ring that sits at the leading edge of the reveal circle, like a
-   spotlight rim. Purely decorative, driven by the same JS-set custom
-   properties as the clip-path itself. */
-.hero__reveal-spot {
-  position: absolute;
-  left: var(--rx, 50%);
-  top: var(--ry, 50%);
-  width: var(--rr, 0px);
-  height: var(--rr, 0px);
-  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+  width: 55%;
+  aspect-ratio: 1;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  box-shadow: 0 0 0 1px rgba(10, 30, 46, 0.08), inset 0 0 24px rgba(255, 255, 255, 0.25);
-  pointer-events: none;
-  will-change: left, top, width, height;
-}
-
-/* Idle auto-sweep for touch / no fine pointer — CSS interpolates between
-   circle() states natively, no JS loop required. */
-.hero__reveal--auto .hero__reveal-top {
-  animation: heroSweep 8s var(--ease-in-out) infinite;
-}
-@keyframes heroSweep {
-  0%, 100% { clip-path: circle(26% at 24% 30%); }
-  50%      { clip-path: circle(34% at 76% 68%); }
-}
-.hero__reveal--auto .hero__reveal-spot { display: none; }
-
-/* Default (no-JS): opacity is unset, so it's visible plainly — correct,
-   since without JS there is no interaction to hint at revealing. With JS,
-   start hidden and let initHeroReveal fade it in, then out on first move. */
-.hero__reveal-hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  margin: 1rem 0 0;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--ink-mute);
-}
-.js .hero__reveal-hint {
+  background: radial-gradient(circle, rgba(225, 96, 31, 0.55) 0%, rgba(225, 96, 31, 0) 70%);
+  filter: blur(10px);
+  transform: translate(-50%, -50%);
   opacity: 0;
-  transition: opacity 0.6s var(--ease-out) 1.1s;
+  pointer-events: none;
+  will-change: left, top, opacity;
 }
-.js .hero__reveal-hint.is-visible { opacity: 1; }
-.js .hero__reveal-hint.is-hidden { opacity: 0; transition-delay: 0s; }
+.hero__logo-img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 44%;
+  filter: drop-shadow(0 10px 22px rgba(10, 30, 46, 0.18));
+  will-change: transform;
+}
 
 @media (hover: none) {
-  .hero__reveal { cursor: default; }
+  .hero__logo-orb { cursor: default; }
+}
+
+/* The line beneath the mark — part of the normal hero entrance fade
+   (data-hero-fade), not a hover hint, so it just stays put. */
+.hero__tagline {
+  margin: 1.35rem auto 0;
+  max-width: 22ch;
+  text-align: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  line-height: 1.35;
+  color: var(--navy-700);
 }
 
 .hero__ring text {
@@ -1093,6 +1070,61 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
 
 .btn.is-busy { pointer-events: none; opacity: 0.75; }
 .btn.is-busy .btn-arrow { display: none; }
+
+/* ------------------------------------------------------------------ */
+/* PAGE TRANSITION — deliberate skeleton screen between pages           */
+/*                                                                       */
+/* initPageTransitions (main.js) intercepts clicks on internal links,   */
+/* shows this overlay, and only completes the navigation after a fixed  */
+/* ~1s beat — a considered pause rather than an instant jump-cut, with   */
+/* a skeleton standing in for the page that's about to load.            */
+/* ------------------------------------------------------------------ */
+
+.page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--cream);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s var(--ease-out), visibility 0.3s;
+}
+.page-transition.is-active { opacity: 1; visibility: visible; }
+
+.pt-skel {
+  max-width: var(--max-w);
+  margin-inline: auto;
+  padding: clamp(1.25rem, 5vw, 4.5rem);
+  padding-top: clamp(6.5rem, 12vw, 9rem);
+}
+.pt-skel > * {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--sand);
+}
+/* Same shimmer sweep as .photo-ph, so a page transition and an unloaded
+   photo read as the same visual language site-wide. */
+.pt-skel > *::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(100deg,
+    transparent 20%, rgba(255, 255, 255, 0.65) 50%, transparent 80%);
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 1.3s linear infinite;
+}
+.pt-skel__nav { height: 52px; border-radius: 100px; max-width: 480px; margin-bottom: 3.5rem; }
+.pt-skel__eyebrow { height: 12px; width: 160px; border-radius: 6px; margin-bottom: 1.5rem; }
+.pt-skel__h1 { height: clamp(2.2rem, 5vw, 3.4rem); width: 78%; margin-bottom: 0.85rem; }
+.pt-skel__h1--short { width: 48%; margin-bottom: 1.75rem; }
+.pt-skel__text { height: 14px; width: 92%; margin-bottom: 0.9rem; }
+.pt-skel__text--short { width: 55%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pt-skel > *::after { animation: none; opacity: 0.55; }
+}
 
 /* Photo placeholder — clearly marked so nothing fake ships by accident */
 .photo-ph {
@@ -1654,19 +1686,18 @@ button.member:hover h3 { color: var(--accent); }
 /* Sport chips */
 .sports-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
+  gap: 1rem;
 }
-.sports-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 158px), 1fr)); }
 .sport {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.8rem 1.05rem;
+  gap: 0.75rem;
+  padding: 0.95rem 1.3rem;
   border: 1px solid var(--sand-line);
   border-radius: var(--radius-pill);
   background: #fff;
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   font-weight: 500;
   transition: border-color 0.4s var(--ease-out), background 0.4s var(--ease-out),
               transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
@@ -1678,7 +1709,7 @@ button.member:hover h3 { color: var(--accent); }
   transform: translateY(-3px);
   box-shadow: 0 10px 22px -14px rgba(10,30,46,0.35);
 }
-.sport__icon { width: 21px; height: 21px; flex: none; }
+.sport__icon { width: 30px; height: 30px; flex: none; }
 .sport:hover .sport__icon { transform: scale(1.06); transition: transform 0.4s var(--ease-out); }
 
 /* Yes / No lists */
@@ -2194,7 +2225,7 @@ button.member:hover h3 { color: var(--accent); }
 @media (max-width: 380px) {
   .sports-grid { grid-template-columns: 1fr 1fr; }
   .sport { font-size: 0.84rem; padding: 0.8rem 0.85rem; gap: 0.5rem; }
-  .sport__icon { width: 19px; height: 19px; }
+  .sport__icon { width: 25px; height: 25px; }
   .hero__meta-item strong { font-size: 1.85rem; }
   /* 0.72rem = 11.5px, the floor for legible tracked uppercase */
   .hero__meta-item span { font-size: 0.72rem; letter-spacing: 0.03em; }
