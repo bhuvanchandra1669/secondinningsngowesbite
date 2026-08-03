@@ -23,29 +23,52 @@
     if (!pre) { document.body.classList.remove('is-loading'); heroIn(); return; }
 
     const bar = pre.querySelector('.preloader__bar span');
+    const count = pre.querySelector('[data-preloader-count]');
     let done = false;
+    let w = 0;
+    let tickId = null;
+
+    const paint = (val) => {
+      w = val;
+      if (bar) bar.style.width = w + '%';
+      if (count) count.textContent = String(Math.round(w));
+    };
 
     const finish = () => {
       if (done) return;
       done = true;
-      if (bar) bar.style.transition = 'width .4s ease';
-      if (bar) bar.style.width = '100%';
+      // The 90%-climb interval below stops itself once it reaches 90, but
+      // if finish() fires first (a fast load, or the safety timeout), that
+      // interval is still armed. Without clearing it here, one more tick
+      // can land right after paint(100) and clamp it straight back down to
+      // 90 — Math.min(100 + jitter, 90) is still 90 — where it then stops,
+      // silently freezing the counter one digit short of complete.
+      if (tickId) { clearInterval(tickId); tickId = null; }
+      if (bar) bar.style.transition = 'width .35s ease';
+      paint(100);
+
+      const exitDelay = prefersReduced ? 0 : 320;
       setTimeout(() => {
-        pre.style.transition = 'opacity .6s ease, visibility .6s';
-        pre.style.opacity = '0';
-        pre.style.visibility = 'hidden';
+        // Curtain-rise exit: the panel slides up and off rather than
+        // fading in place. Skipped under reduced motion — straight to
+        // hidden, no transform to sit through.
+        if (prefersReduced) {
+          pre.style.visibility = 'hidden';
+        } else {
+          pre.classList.add('is-leaving');
+          pre.addEventListener('transitionend', () => { pre.style.visibility = 'hidden'; }, { once: true });
+        }
         document.body.classList.remove('is-loading');
         heroIn();
-      }, 320);
+      }, exitDelay);
     };
 
-    // Animate the bar up to 90% while we wait, then complete on load.
-    if (bar) {
-      let w = 0;
-      const tick = setInterval(() => {
-        w = Math.min(w + Math.random() * 16, 90);
-        bar.style.width = w + '%';
-        if (w >= 90) clearInterval(tick);
+    // Climb toward 90% while we wait for real load; finish() takes it the
+    // rest of the way so the count never visibly stalls mid-number.
+    if (!prefersReduced) {
+      tickId = setInterval(() => {
+        paint(Math.min(w + Math.random() * 16, 90));
+        if (w >= 90 && tickId) { clearInterval(tickId); tickId = null; }
       }, 130);
     }
 
@@ -105,6 +128,13 @@
     window.addEventListener('scroll', onScroll, { passive: true });
 
     if (burger && menu) {
+      // Stagger index per link, consumed by the --i custom property in the
+      // CSS transition-delay — works for any number of nav items, not just
+      // however many nth-child rules happen to be written in the stylesheet.
+      menu.querySelectorAll('li a').forEach((a, i) => {
+        a.style.setProperty('--i', String(i));
+      });
+
       const toggle = (open) => {
         document.body.classList.toggle('nav-open', open);
         burger.setAttribute('aria-expanded', String(open));

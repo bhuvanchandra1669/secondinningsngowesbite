@@ -343,14 +343,27 @@ p:last-child { margin-bottom: 0; }
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: var(--cream);
+  background: var(--navy-900);
   display: grid;
   place-items: center;
-  gap: 1.5rem;
+  /* The exit is a curtain-rise, not a fade: the whole panel slides up and
+     off rather than dissolving in place. JS toggles .is-leaving to start
+     it once loading actually finishes. */
+  transform: translateY(0);
+}
+.js .preloader.is-leaving {
+  transition: transform 0.7s cubic-bezier(0.7, 0, 0.15, 1);
+  transform: translateY(-100%);
+}
+
+.preloader__inner {
+  display: grid;
+  place-items: center;
+  gap: 1.25rem;
 }
 .preloader__mark {
-  width: 92px;
-  height: 92px;
+  width: 76px;
+  height: 76px;
   animation: markSpin 2.4s var(--ease-in-out) infinite;
 }
 @keyframes markSpin {
@@ -358,10 +371,31 @@ p:last-child { margin-bottom: 0; }
   50%  { transform: rotate(180deg) scale(1.07); }
   100% { transform: rotate(360deg) scale(1); }
 }
+
+/* The big percentage counter — the loading sequence's actual centrepiece.
+   Fraunces at a hero-scale size so the wait itself reads as a deliberate
+   beat rather than a spinner to get past. */
+.preloader__count {
+  display: flex;
+  align-items: flex-start;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 9vw, 5.5rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+}
+.preloader__count em {
+  font-style: normal;
+  font-size: 0.32em;
+  margin-top: 0.3em;
+  color: var(--amber-400);
+}
+
 .preloader__bar {
-  width: 140px;
+  width: 160px;
   height: 2px;
-  background: var(--sand);
+  background: rgba(255, 255, 255, 0.15);
   overflow: hidden;
   border-radius: 2px;
 }
@@ -369,7 +403,7 @@ p:last-child { margin-bottom: 0; }
   display: block;
   height: 100%;
   width: 0%;
-  background: var(--accent);
+  background: var(--amber-400);
 }
 
 /* ------------------------------------------------------------------ */
@@ -568,14 +602,12 @@ body.nav-open .mobile-menu {
   transition: transform 0.7s var(--ease-out), color 0.3s;
 }
 body.nav-open .mobile-menu a { transform: translateY(0); }
-.mobile-menu li:nth-child(1) a { transition-delay: 0.14s; }
-.mobile-menu li:nth-child(2) a { transition-delay: 0.19s; }
-.mobile-menu li:nth-child(3) a { transition-delay: 0.24s; }
-.mobile-menu li:nth-child(4) a { transition-delay: 0.29s; }
-.mobile-menu li:nth-child(5) a { transition-delay: 0.34s; }
-.mobile-menu li:nth-child(6) a { transition-delay: 0.39s; }
-.mobile-menu li:nth-child(7) a { transition-delay: 0.44s; }
-.mobile-menu li:nth-child(8) a { transition-delay: 0.49s; }
+/* Stagger driven by a --i custom property set per-link in initNav (main.js),
+   rather than a fixed bank of nth-child rules — works for any number of nav
+   items instead of silently losing its stagger past the 8th. Without JS,
+   --i is simply unset and every link falls back to the same 0.14s delay:
+   still a real reveal, just not staggered. */
+.mobile-menu li a { transition-delay: calc(0.14s + var(--i, 0) * 0.05s); }
 .mobile-menu a:hover { color: var(--amber-400); }
 .mobile-menu__foot {
   margin-top: 2.5rem;
