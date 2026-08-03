@@ -508,6 +508,107 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Hero cursor-reveal                                                  */
+  /*                                                                     */
+  /* A worn bat sits underneath; the pointer opens a spotlight onto the   */
+  /* same bat refurbished. The revealing circle is lerped toward the      */
+  /* pointer each frame for a soft, slightly-lagging feel rather than      */
+  /* snapping straight to the cursor.                                     */
+  /*                                                                       */
+  /* Three paths: fine pointer (desktop) gets the live drag; coarse       */
+  /* pointer (touch) gets a slow automatic CSS sweep — nobody can hover    */
+  /* a phone, so a static circle would just look unfinished; reduced      */
+  /* motion gets a fixed partial reveal with no animation loop at all.    */
+  /* ------------------------------------------------------------------ */
+
+  function initHeroReveal() {
+    const wrap = document.querySelector('[data-hero-reveal]');
+    if (!wrap) return;
+
+    const top = wrap.querySelector('.hero__reveal-top');
+    const spot = wrap.querySelector('.hero__reveal-spot');
+    const hint = document.querySelector('[data-hero-reveal-hint]');
+    const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    if (prefersReduced) {
+      if (top) top.style.clipPath = 'circle(46% at 32% 42%)';
+      return;
+    }
+
+    if (!hasFinePointer) {
+      wrap.classList.add('hero__reveal--auto');
+      return;
+    }
+
+    let w = wrap.clientWidth, h = wrap.clientHeight;
+    let fullRadius = Math.max(w, h) * 0.42;
+    let targetX = w / 2, targetY = h / 2;
+    let targetR = 0;
+    let curX = targetX, curY = targetY, curR = 0;
+    let raf = null;
+    let hintShown = false;
+    let hintHidden = false;
+
+    const paint = (x, y, r) => {
+      if (top) top.style.clipPath = `circle(${r}px at ${x}px ${y}px)`;
+      if (spot) {
+        spot.style.setProperty('--rx', x + 'px');
+        spot.style.setProperty('--ry', y + 'px');
+        spot.style.setProperty('--rr', r * 2 + 'px');
+      }
+    };
+
+    const tick = () => {
+      // Exponential smoothing rather than a linear step, so the reveal
+      // eases into place instead of trailing the pointer at constant speed.
+      curX += (targetX - curX) * 0.15;
+      curY += (targetY - curY) * 0.15;
+      curR += (targetR - curR) * 0.18;
+      paint(curX, curY, curR);
+      const settled = Math.abs(targetX - curX) < 0.3 && Math.abs(targetY - curY) < 0.3 && Math.abs(targetR - curR) < 0.3;
+      raf = settled ? null : requestAnimationFrame(tick);
+    };
+
+    const nudge = () => { if (!raf) raf = requestAnimationFrame(tick); };
+
+    wrap.addEventListener('pointermove', (e) => {
+      const r = wrap.getBoundingClientRect();
+      targetX = e.clientX - r.left;
+      targetY = e.clientY - r.top;
+      targetR = fullRadius;
+      nudge();
+      if (!hintHidden && hint) {
+        hint.classList.remove('is-visible');
+        hint.classList.add('is-hidden');
+        hintHidden = true;
+      }
+    });
+
+    wrap.addEventListener('pointerenter', () => {
+      if (!hintShown && hint) { hint.classList.add('is-visible'); hintShown = true; }
+    });
+
+    // Shrink the lens back to nothing rather than just recentring it —
+    // otherwise the "after" state stays visible dead-centre at rest, which
+    // undercuts the reason a visitor would bother moving their mouse.
+    wrap.addEventListener('pointerleave', () => {
+      targetR = 0;
+      nudge();
+    });
+
+    // Reveal the hint once on load even without a hover, so keyboard/touch
+    // users landing here via a screen reader summary aren't left guessing —
+    // it just never disappears for them, which is fine.
+    setTimeout(() => { if (!hintShown && hint) hint.classList.add('is-visible'); }, 700);
+
+    window.addEventListener('resize', () => {
+      w = wrap.clientWidth; h = wrap.clientHeight;
+      fullRadius = Math.max(w, h) * 0.42;
+      if (targetR > 0) targetR = fullRadius;
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Submit spinner                                                      */
   /*                                                                     */
   /* The real forms POST to FormSubmit and the browser navigates away.   */
@@ -564,6 +665,7 @@
       initForms,
       initModals,
       initImageLoading,
+      initHeroReveal,
       initSubmitState,
       initYear
     ];
