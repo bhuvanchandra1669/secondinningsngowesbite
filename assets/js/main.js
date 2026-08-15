@@ -21,10 +21,10 @@
   // still works fine without it, it just skips the extra copy. See
   // SHEET-LOGGING-SETUP.md.
   const SHEET_LOGGER_URLS = {
-    'Contact': '',
-    'Donate Gear': '',
-    'Request Equipment': '',
-    'Get Involved': ''
+    'Contact': 'https://script.google.com/macros/s/AKfycbzK6jABLraYVIrEKeCco5VjxcnrtaBJa21smksi5MrQoEG80XSPcpjK-Fm-KcrZGR2h/exec',
+    'Donate Gear': 'https://script.google.com/macros/s/AKfycbyLDEW83vw0FMmsfn4nj0HULKJ3tEAROXVo6Hc-Db2w_jQj_eA5H_UL8RCn_q2g3N2nlQ/exec',
+    'Request Equipment': 'https://script.google.com/macros/s/AKfycbxvnWwrQtwE6IPGCmLdxepd7LkAr0PSYdorJVtyMnXIK-_tj-CuIlNLW_cUGbM2JP2Q/exec',
+    'Get Involved': 'https://script.google.com/macros/s/AKfycbxIxkVoXU3ZxrN15u6uOkAQcRoATre_-96EvuuyzXRTRR4UAHOwFd2kU84o86Od8_Mx/exec'
   };
 
   /* ------------------------------------------------------------------ */
