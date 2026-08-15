@@ -1475,16 +1475,18 @@ a.card:hover, .card--hover:hover {
 /* Team profile cards */
 /* Locked to 5 equal columns so every card is the same size and the whole
    team sits in one row, rather than auto-fitting and wrapping unevenly. */
+/* Six people, two rows of three — locked columns rather than auto-fit so
+   it never breaks into an awkward 4 + 2. */
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: clamp(1rem, 2vw, 1.5rem);
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.25rem, 2.5vw, 2rem);
 }
 .team-grid .member { height: 100%; }
-@media (max-width: 1100px) {
-  .team-grid { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 700px) {
+  .team-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-width: 600px) {
+@media (max-width: 460px) {
   .team-grid { grid-template-columns: repeat(1, 1fr); }
 }
 .member__photo { margin-bottom: 1.35rem; }
@@ -1526,7 +1528,7 @@ a.card:hover, .card--hover:hover {
 /* Compact variant — photo, name, role only. Used on the About page.
    Locked column counts rather than auto-fit, so five cards never break
    into an awkward 4 + 1. */
-.team-grid--compact { grid-template-columns: repeat(5, 1fr); gap: 1.25rem; }
+.team-grid--compact { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 .team-grid--compact .member {
   display: block;
   text-decoration: none;
@@ -1535,14 +1537,15 @@ a.card:hover, .card--hover:hover {
 .team-grid--compact .member__photo { margin-bottom: 1rem; }
 .team-grid--compact .member h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
 .team-grid--compact .member__role { font-size: 0.66rem; margin-bottom: 0; }
-.team-grid--compact .member .photo-ph { transition: transform 0.6s var(--ease-out); }
+.team-grid--compact .member .photo-ph,
+.team-grid--compact .member .img-hold { transition: transform 0.6s var(--ease-out); }
 .team-grid--compact .member:hover h3 { color: var(--accent); }
 
-@media (max-width: 900px) {
-  .team-grid--compact { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 560px) {
+@media (max-width: 700px) {
   .team-grid--compact { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 460px) {
+  .team-grid--compact { grid-template-columns: repeat(1, 1fr); }
 }
 
 /* ------------------------------------------------------------------ */
