@@ -14,6 +14,12 @@
   const isDesktop = () => window.matchMedia('(min-width: 901px)').matches;
   const hasGSAP = () => typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
 
+  // Google Apps Script Web App URL that logs form submissions into a Sheet,
+  // alongside the FormSubmit email each form already sends. Leave blank
+  // until that script is deployed — every form still works fine without it,
+  // it just skips the extra copy. See SHEET-LOGGING-SETUP.md.
+  const SHEET_LOGGER_URL = '';
+
   /* ------------------------------------------------------------------ */
   /* Preloader                                                           */
   /* ------------------------------------------------------------------ */
@@ -525,46 +531,6 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Forms                                                               */
-  /*                                                                     */
-  /* The four real forms POST straight to FormSubmit and are handled by  */
-  /* the browser — they carry an `action` and no `data-demo-form`, so    */
-  /* none of this runs for them. This handler stays for any form you add */
-  /* later that isn't wired to a backend yet: mark it `data-demo-form`   */
-  /* and it will validate and show a clearly-labelled fake success.      */
-  /* ------------------------------------------------------------------ */
-
-  function initForms() {
-    document.querySelectorAll('form[data-demo-form]').forEach((form) => {
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        if (!form.checkValidity()) { form.reportValidity(); return; }
-
-        const btn = form.querySelector('[type="submit"]');
-        const original = btn ? btn.innerHTML : '';
-        if (btn) { btn.disabled = true; btn.innerHTML = 'Sending…'; }
-
-        setTimeout(() => {
-          form.innerHTML =
-            '<div style="text-align:center;padding:2.5rem 1rem;">' +
-            '<div style="width:64px;height:64px;border-radius:50%;background:rgba(62,158,68,.12);color:#2F7D3A;' +
-            'display:grid;place-items:center;margin:0 auto 1.5rem;font-size:1.8rem;">✓</div>' +
-            '<h3 style="margin-bottom:.5rem;">Thank you — we&rsquo;ve got it.</h3>' +
-            '<p style="color:var(--ink-soft);margin-inline:auto;">Someone from Second Innings will get back to you within 2&ndash;3 days. ' +
-            'If it&rsquo;s urgent, email us at <a href="mailto:Manvithreddyyendoti@gmail.com" style="color:var(--accent);">' +
-            'Manvithreddyyendoti@gmail.com</a>.</p>' +
-            '<p style="margin-top:1.5rem;font-size:.8rem;color:var(--ink-mute);">' +
-            '<strong>Developer note:</strong> this form is not connected to anything yet. ' +
-            'See README.md &rarr; &ldquo;Connecting the forms&rdquo;.</p>' +
-            '</div>';
-          if (btn) { btn.disabled = false; btn.innerHTML = original; }
-        }, 900);
-      });
-    });
-  }
-
-  /* ------------------------------------------------------------------ */
   /* Member modal                                                        */
   /*                                                                     */
   /* Uses the native <dialog>, which gives us the top layer, ::backdrop  */
@@ -769,6 +735,18 @@
         const label = btn.querySelector('.btn__label') || btn;
         btn.insertAdjacentHTML('afterbegin', '<span class="spinner" aria-hidden="true"></span>');
         if (label !== btn) label.textContent = 'Sending…';
+
+        // Fire a second, silent copy of the submission at the Sheet-logging
+        // script — fire-and-forget, never awaited, so a slow or failed
+        // request here can't delay or block the real FormSubmit submission
+        // the browser is about to carry out on its own. `no-cors` because
+        // the Apps Script response isn't readable cross-origin anyway; we
+        // only care that the request goes out, not what it replies.
+        if (SHEET_LOGGER_URL) {
+          try {
+            fetch(SHEET_LOGGER_URL, { method: 'POST', mode: 'no-cors', body: new FormData(form) });
+          } catch (err) { /* the real submission still goes through regardless */ }
+        }
       });
     });
   }
@@ -859,7 +837,6 @@
       initJourney,
       initParallax,
       initSplitHeadings,
-      initForms,
       initModals,
       initImageLoading,
       initHeroMark,
