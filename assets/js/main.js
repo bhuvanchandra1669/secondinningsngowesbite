@@ -14,11 +14,18 @@
   const isDesktop = () => window.matchMedia('(min-width: 901px)').matches;
   const hasGSAP = () => typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
 
-  // Google Apps Script Web App URL that logs form submissions into a Sheet,
-  // alongside the FormSubmit email each form already sends. Leave blank
-  // until that script is deployed — every form still works fine without it,
-  // it just skips the extra copy. See SHEET-LOGGING-SETUP.md.
-  const SHEET_LOGGER_URL = '';
+  // Google Apps Script Web App URLs that log form submissions into a Sheet,
+  // alongside the FormSubmit email each form already sends — one independent
+  // script + deployment per form, not one shared script routing between them.
+  // Leave any of these blank until that form's script is deployed; the form
+  // still works fine without it, it just skips the extra copy. See
+  // SHEET-LOGGING-SETUP.md.
+  const SHEET_LOGGER_URLS = {
+    'Contact': '',
+    'Donate Gear': '',
+    'Request Equipment': '',
+    'Get Involved': ''
+  };
 
   /* ------------------------------------------------------------------ */
   /* Preloader                                                           */
@@ -736,15 +743,19 @@
         btn.insertAdjacentHTML('afterbegin', '<span class="spinner" aria-hidden="true"></span>');
         if (label !== btn) label.textContent = 'Sending…';
 
-        // Fire a second, silent copy of the submission at the Sheet-logging
-        // script — fire-and-forget, never awaited, so a slow or failed
-        // request here can't delay or block the real FormSubmit submission
-        // the browser is about to carry out on its own. `no-cors` because
-        // the Apps Script response isn't readable cross-origin anyway; we
-        // only care that the request goes out, not what it replies.
-        if (SHEET_LOGGER_URL) {
+        // Fire a second, silent copy of the submission at that form's own
+        // Sheet-logging script — fire-and-forget, never awaited, so a slow
+        // or failed request here can't delay or block the real FormSubmit
+        // submission the browser is about to carry out on its own. `no-cors`
+        // because the Apps Script response isn't readable cross-origin
+        // anyway; we only care that the request goes out, not what it
+        // replies. Each form has its own independent script + deployment,
+        // looked up by its formType hidden field.
+        const formType = form.querySelector('[name="formType"]');
+        const loggerUrl = formType && SHEET_LOGGER_URLS[formType.value];
+        if (loggerUrl) {
           try {
-            fetch(SHEET_LOGGER_URL, { method: 'POST', mode: 'no-cors', body: new FormData(form) });
+            fetch(loggerUrl, { method: 'POST', mode: 'no-cors', body: new FormData(form) });
           } catch (err) { /* the real submission still goes through regardless */ }
         }
       });
