@@ -2203,12 +2203,25 @@ button.member:hover h3 { color: var(--accent); }
   .hero { min-height: auto; padding-top: 8.5rem; padding-bottom: 5rem; }
   .scroll-cue { display: none; }
 
-  /* Journey collapses to a simple stacked story on small screens —
-     pinning long scroll sequences on phones is a usability trap. */
-  .journey__stage { grid-template-columns: 1fr; }
-  .journey__visual { position: relative; height: auto; padding-block: 1.5rem 0; }
-  .journey__canvas { width: min(54%, 210px); }
-  .journey__rail { position: relative; flex-direction: row; flex-wrap: wrap; transform: none; top: auto; gap: 0.8rem 1.4rem; margin-bottom: 2rem; }
+  /* Journey collapses to a stacked story on small screens — pinning a long
+     scroll sequence with GSAP on phones is a usability trap (mobile Safari's
+     dynamic viewport makes JS-driven pin math unstable). A plain CSS sticky
+     header for the visual avoids that entirely: no scroll listener, native
+     browser behaviour, and the illustration stays visible (and keeps
+     updating its stage, via the IntersectionObserver fallback in
+     initJourney) as the four steps scroll underneath it, instead of being
+     scrolled away and forgotten after the first step. */
+  .journey__stage { display: block; grid-template-columns: 1fr; }
+  .journey__visual {
+    position: sticky;
+    top: 0;
+    height: auto;
+    padding-block: 1rem 0.75rem;
+    background: var(--navy-900);
+    z-index: 3;
+  }
+  .journey__canvas { width: min(38%, 150px); }
+  .journey__rail { position: relative; flex-direction: row; flex-wrap: wrap; transform: none; top: auto; gap: 0.6rem 1.1rem; margin-bottom: 0; justify-content: center; }
   .journey__step { min-height: auto; padding-block: 2.5rem; border-bottom: 1px solid rgba(255,255,255,0.09); }
   .journey__steps { padding-block: 0 3rem; }
 }

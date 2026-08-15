@@ -74,7 +74,7 @@
 
     window.addEventListener('load', finish);
     // Never let a slow asset hold the page hostage.
-    setTimeout(finish, prefersReduced ? 200 : 2200);
+    setTimeout(finish, prefersReduced ? 200 : 1300);
   }
 
   /* ------------------------------------------------------------------ */
@@ -816,7 +816,7 @@
       e.preventDefault();
       navigating = true;
       overlay.classList.add('is-active');
-      setTimeout(() => { window.location.href = href; }, 1000);
+      setTimeout(() => { window.location.href = href; }, 320);
     });
 
     // A back/forward restore from bfcache can bring this page back with
