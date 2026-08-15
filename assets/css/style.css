@@ -1038,6 +1038,7 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
   overflow: hidden;
   border-radius: var(--radius-lg);
   background: var(--cream-2);
+  aspect-ratio: var(--ar, 4/3);
 }
 .img-hold::after {
   content: "";
@@ -1052,6 +1053,8 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
 .img-hold img {
   display: block;
   width: 100%;
+  height: 100%;
+  object-fit: cover;
   opacity: 0;
   transition: opacity 0.6s var(--ease-out);
 }
@@ -1470,10 +1473,19 @@ a.card:hover, .card--hover:hover {
 .section--dark .card__icon { background: rgba(255,255,255,0.07); color: var(--amber-400); }
 
 /* Team profile cards */
+/* Locked to 5 equal columns so every card is the same size and the whole
+   team sits in one row, rather than auto-fitting and wrapping unevenly. */
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-  gap: clamp(1.5rem, 3vw, 2.25rem);
+  grid-template-columns: repeat(5, 1fr);
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+.team-grid .member { height: 100%; }
+@media (max-width: 1100px) {
+  .team-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 600px) {
+  .team-grid { grid-template-columns: repeat(1, 1fr); }
 }
 .member__photo { margin-bottom: 1.35rem; }
 .member__photo .photo-ph { border-radius: var(--radius-lg); }
