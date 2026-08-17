@@ -1997,8 +1997,16 @@ button.member:hover h3 { color: var(--accent); }
   padding-top: clamp(9rem, 16vw, 13rem);
   padding-bottom: clamp(3rem, 7vw, 5.5rem);
   overflow: hidden;
-  background: var(--cream-2);
+  background-color: var(--cream-2);
   border-bottom: 1px solid var(--sand-line);
+  /* A quiet blueprint-grid texture — borrowed from bklit.com's hero
+     treatment, toned down to sit under a warm cream background instead
+     of near-black. Kept faint enough to read as paper texture, not a
+     dashboard. */
+  background-image:
+    linear-gradient(rgba(10, 30, 46, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10, 30, 46, 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
 }
 .page-hero::before {
   content: "";
@@ -2007,6 +2015,19 @@ button.member:hover h3 { color: var(--accent); }
   right: -18vw; top: -28vw;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(242,168,29,0.24), transparent 66%);
+  pointer-events: none;
+}
+/* A single corner hatch mark, like the grid-intersection accents on
+   bklit.com — bottom-right only, so it never competes with the
+   breadcrumb/heading in the top-left. */
+.page-hero::after {
+  content: "";
+  position: absolute;
+  right: 0; bottom: 0;
+  width: 56px; height: 56px;
+  background-image: repeating-linear-gradient(45deg, rgba(10, 30, 46, 0.14) 0 1px, transparent 1px 7px);
+  border-left: 1px solid var(--sand-line);
+  border-top: 1px solid var(--sand-line);
   pointer-events: none;
 }
 .page-hero .wrap { position: relative; z-index: 2; }
