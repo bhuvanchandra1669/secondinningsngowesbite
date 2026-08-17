@@ -1191,7 +1191,7 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
     repeating-linear-gradient(135deg,
       rgba(19,64,99,0.045) 0 12px,
       rgba(19,64,99,0.012) 12px 24px),
-    var(--cream-2);
+    #fff;
   border: 1px solid var(--sand-line);
   display: flex;
   flex-direction: column;
@@ -1236,6 +1236,12 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
 .section--dark .feature-panel__icon { background: rgba(255,255,255,0.07); box-shadow: none; }
 .section--dark .feature-panel__text { color: #A9C0D4; }
 .section--dark .feature-panel__text strong { color: var(--cream); }
+
+/* .figure zooms its child from 1.12 and settles — right for a photo that
+   fills the frame, wrong for a bordered panel, whose border would be
+   clipped by .figure's overflow while it is scaled up. The wipe still
+   plays; only the zoom is opted out of. */
+.js .figure:not(.is-in) > .feature-panel { transform: none; }
 
 /* ------------------------------------------------------------------ */
 /* 11. THE JOURNEY (scrollytelling)                                    */
@@ -2528,6 +2534,7 @@ button.member:hover h3 { color: var(--accent); }
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
     transition-duration: 0.001ms !important;
   }
   [data-reveal] { opacity: 1 !important; transform: none !important; }
