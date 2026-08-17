@@ -1,0 +1,51 @@
+# Second Innings
+
+> Second Innings is a small, Hyderabad-only nonprofit that collects unused sports
+> equipment (cricket, football, badminton, basketball, volleyball), gets it
+> refurbished through local partner sports stores, and gives it free to government
+> schools, academies and community coaches in Hyderabad, India. It does not accept
+> or ask for money — Second Innings is not yet a registered organisation, so it
+> cannot issue tax-deductible receipts, and it asks for equipment, time and
+> introductions instead.
+
+## Key facts
+
+- Operates in Hyderabad, India only — no other city, no shipping.
+- Accepts: cricket, football, badminton, basketball, volleyball equipment.
+- Does not accept: trophies, medals, memorabilia, or adult-only gear with no youth
+  equivalent.
+- Registration status: not yet a registered organisation (as of August 2026). Does
+  not solicit or accept financial donations for this reason. Equipment, storage
+  space, a vehicle, or volunteering time are what it asks for instead.
+- Contact: second.innings456@gmail.com — Instagram: @projectsecondinnings
+- Team: six volunteers covering direction, operations, finance & tech, social
+  media & outreach, event planning, and creative design — no paid staff.
+
+## Pages
+
+- [Home](https://secondinningsngowesbite.vercel.app/): Overview of the mission —
+  collect, refurbish, redistribute.
+- [What We Do](https://secondinningsngowesbite.vercel.app/what-we-do.html): The
+  four-step process (collected, assessed, refurbished, playing again), and
+  frequently asked questions including the tax-receipt policy.
+- [Donate Your Gear](https://secondinningsngowesbite.vercel.app/donate-gear.html):
+  What equipment is accepted, condition guidelines, and the donation form
+  (drop-off, pickup, or a collection drive).
+- [Request Equipment](https://secondinningsngowesbite.vercel.app/request-equipment.html):
+  For government schools, academies, coaches and community programmes to apply
+  for free equipment — no cost, no catch.
+- [Get Involved](https://secondinningsngowesbite.vercel.app/get-involved.html):
+  Ways to help without giving money — volunteering, running a collection drive,
+  partnering as a repair store, offering storage or transport, or a corporate CSR
+  project.
+- [Our Impact](https://secondinningsngowesbite.vercel.app/impact.html): How
+  equipment counts are measured and what is not claimed; transparency on
+  registration status.
+- [About](https://secondinningsngowesbite.vercel.app/about.html): Mission,
+  beliefs, and where the organisation operates.
+- [Our Team](https://secondinningsngowesbite.vercel.app/team.html): The six
+  people who run Second Innings and what each of them does.
+- [Contact](https://secondinningsngowesbite.vercel.app/contact.html): Direct
+  contact details and a general enquiry form.
+- [Privacy](https://secondinningsngowesbite.vercel.app/privacy.html): What
+  personal information is collected through the site's forms and why.
