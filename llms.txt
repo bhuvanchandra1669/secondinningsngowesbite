@@ -38,9 +38,23 @@
   Ways to help without giving money — volunteering, running a collection drive,
   partnering as a repair store, offering storage or transport, or a corporate CSR
   project.
+- [Corporate & CSR](https://secondinningsngowesbite.vercel.app/corporate.html):
+  A standalone page for companies — engagement options (office drives, sponsoring
+  a batch of kits, a volunteering day), and an honest note that no tax receipt can
+  be issued yet given the registration status.
+- [FAQ](https://secondinningsngowesbite.vercel.app/faq.html): All frequently
+  asked questions in one place — what's accepted, how requests are matched,
+  registration and tax-receipt status, timelines, and how to reach the team.
 - [Our Impact](https://secondinningsngowesbite.vercel.app/impact.html): How
   equipment counts are measured and what is not claimed; transparency on
   registration status.
+- [Partner Stores](https://secondinningsngowesbite.vercel.app/partners.html):
+  Explains how refurbishment through local sports stores works. Stores are not
+  yet publicly named on the site; includes a pitch for store owners to join.
+- [Stories](https://secondinningsngowesbite.vercel.app/stories.html): A running
+  log of real collection drives and handovers. Honestly empty at launch — no
+  placeholder stories — updated as real ones happen, with @projectsecondinnings
+  on Instagram as the interim source.
 - [About](https://secondinningsngowesbite.vercel.app/about.html): Mission,
   beliefs, and where the organisation operates.
 - [Our Team](https://secondinningsngowesbite.vercel.app/team.html): The six

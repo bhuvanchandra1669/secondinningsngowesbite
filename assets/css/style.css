@@ -1368,11 +1368,30 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
 /* ------------------------------------------------------------------ */
 
 .stats {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
   gap: clamp(1.5rem, 3vw, 2.5rem);
+  padding: 2rem 2rem 2.5rem;
+  /* Same quiet blueprint-grid language as .page-hero, in a light-on-navy
+     variant since every .stats block sits on a dark section. One hatch
+     mark, not one per number — the numbers themselves stay the moment. */
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
-.stat { padding-top: 1.5rem; border-top: 2px solid var(--sand-line); }
+.stats::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 0;
+  width: 44px; height: 44px;
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.14) 0 1px, transparent 1px 6px);
+  border-right: 1px solid rgba(255, 255, 255, 0.14);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  pointer-events: none;
+}
+.stat { position: relative; z-index: 1; padding-top: 1.5rem; border-top: 2px solid var(--sand-line); }
 .section--dark .stat { border-top-color: rgba(255,255,255,0.18); }
 .stat__num {
   font-family: var(--font-display);
@@ -1399,6 +1418,25 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
   transform-origin: left center;
   animation: statPop 0.8s var(--ease-out) both;
 }
+
+/* Odometer digits (see initCounters in main.js) — each digit character is
+   its own small reel that slides up into place when its value changes.
+   Neutralised globally by the reduced-motion block further down, same as
+   every other animation on the site. */
+.digit-reel {
+  display: inline-block;
+  overflow: hidden;
+  height: 1em;
+  line-height: 1;
+  vertical-align: bottom;
+}
+.digit-reel__inner { display: inline-block; }
+.js .digit-reel__inner { animation: digitRoll 0.3s var(--ease-out) both; }
+@keyframes digitRoll {
+  from { transform: translateY(40%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+.digit-reel__static { display: inline-block; }
 
 .stat__label {
   margin-top: 0.75rem;
@@ -2526,4 +2564,71 @@ button.member:hover h3 { color: var(--accent); }
 @keyframes scanSweep {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(74px); }
+}
+
+/* ------------------------------------------------------------------ */
+/* 24. THANK-YOU PAGE — success checkmark + confetti                   */
+/*                                                                      */
+/* Only ever reached once, right after a real submission, so this is   */
+/* one of the few spots on the site that earns a slightly bigger        */
+/* moment than the "one strong reveal per section" rule elsewhere.      */
+/* ------------------------------------------------------------------ */
+
+.thanks {
+  position: relative;
+  padding: clamp(6rem, 14vw, 10rem) 0 clamp(4rem, 8vw, 6rem);
+  text-align: center;
+  overflow: hidden;
+}
+.thanks::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(225, 96, 31, 0.1), transparent 60%);
+  pointer-events: none;
+}
+.thanks .wrap { position: relative; z-index: 1; max-width: 640px; }
+.thanks .eyebrow { justify-content: center; }
+.thanks h1 { font-size: var(--fs-display); margin-bottom: 1rem; }
+.thanks .lead { max-width: 52ch; margin-inline: auto; margin-bottom: 2.5rem; }
+
+.thanks__badge {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 1.75rem;
+}
+.thanks__ring, .thanks__check { stroke: var(--orange-500); fill: none; }
+.js .thanks__ring {
+  stroke-dasharray: 283;
+  stroke-dashoffset: 283;
+  animation: thanksRing 0.6s var(--ease-out) 0.1s forwards;
+}
+.js .thanks__check {
+  stroke-dasharray: 64;
+  stroke-dashoffset: 64;
+  animation: thanksCheck 0.5s var(--ease-out) 0.65s forwards;
+}
+@keyframes thanksRing { to { stroke-dashoffset: 0; } }
+@keyframes thanksCheck { to { stroke-dashoffset: 0; } }
+
+.thanks__confetti {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  opacity: 0;
+  pointer-events: none;
+}
+.js .thanks__confetti { animation: confettiPop 0.75s var(--ease-out) both; }
+.thanks__confetti--1 { background: #E1601F; animation-delay: .55s; --tx: -70px; --ty: -50px; --rot: -35deg; }
+.thanks__confetti--2 { background: #3E9E44; animation-delay: .60s; --tx:  65px; --ty: -55px; --rot:  28deg; }
+.thanks__confetti--3 { background: #1C6BA8; animation-delay: .65s; --tx: -80px; --ty:  20px; --rot:  50deg; }
+.thanks__confetti--4 { background: #F2A81D; animation-delay: .58s; --tx:  78px; --ty:  15px; --rot: -40deg; }
+.thanks__confetti--5 { background: #C33A22; animation-delay: .70s; --tx: -35px; --ty: -80px; --rot:  20deg; }
+.thanks__confetti--6 { background: #3E9E44; animation-delay: .62s; --tx:  30px; --ty: -85px; --rot: -25deg; }
+@keyframes confettiPop {
+  0%   { opacity: 0; transform: translate(-50%, -50%) translate(0, 0) rotate(0deg) scale(0.4); }
+  25%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1); }
 }

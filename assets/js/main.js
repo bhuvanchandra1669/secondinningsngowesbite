@@ -326,10 +326,42 @@
     const nums = document.querySelectorAll('[data-count]');
     if (!nums.length) return;
 
+    const format = (v, el) => {
+      const dec = parseInt(el.dataset.countDecimals || 0, 10);
+      const n = dec ? v.toFixed(dec) : Math.round(v);
+      return el.dataset.countPlain === 'true' ? String(n) : Number(n).toLocaleString('en-IN');
+    };
+
+    // Odometer digits — each character gets its own little reel. A digit
+    // only gets a fresh element (which is what replays its roll-in
+    // keyframe) when its value actually changed since the last render;
+    // untouched positions are left alone. That's what keeps this reading
+    // as individual digits ticking into place rather than the whole
+    // number flickering every frame.
+    const reelHTML = (ch) => /[0-9]/.test(ch)
+      ? '<span class="digit-reel"><span class="digit-reel__inner">' + ch + '</span></span>'
+      : '<span class="digit-reel__static">' + ch + '</span>';
+
+    const renderReels = (el, str) => {
+      const prevChars = el.dataset.reelChars ? el.dataset.reelChars.split('') : [];
+      const chars = str.split('');
+      if (chars.length !== prevChars.length || !el.childElementCount) {
+        el.innerHTML = chars.map(reelHTML).join('');
+      } else {
+        chars.forEach((ch, i) => {
+          if (ch === prevChars[i]) return;
+          const node = el.children[i];
+          if (node) node.outerHTML = reelHTML(ch);
+        });
+      }
+      el.dataset.reelChars = str;
+    };
+
     const run = (el) => {
       const target = parseFloat(el.dataset.count);
       const dur = 1700;
       const start = performance.now();
+      let lastRender = 0;
 
       if (prefersReduced) { el.textContent = format(target, el); return; }
 
@@ -343,16 +375,15 @@
         const p = Math.min((now - start) / dur, 1);
         // easeOutExpo — fast then settles, reads as "counting up"
         const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
-        el.textContent = format(target * eased, el);
+        // Throttled to ~70ms so each tick is a visible discrete roll
+        // rather than a blur of continuous sub-frame updates.
+        if (now - lastRender >= 70 || p === 1) {
+          renderReels(el, format(target * eased, el));
+          lastRender = now;
+        }
         if (p < 1) requestAnimationFrame(frame);
       };
       requestAnimationFrame(frame);
-    };
-
-    const format = (v, el) => {
-      const dec = parseInt(el.dataset.countDecimals || 0, 10);
-      const n = dec ? v.toFixed(dec) : Math.round(v);
-      return el.dataset.countPlain === 'true' ? String(n) : Number(n).toLocaleString('en-IN');
     };
 
     if (!('IntersectionObserver' in window)) { nums.forEach(run); return; }
