@@ -1177,6 +1177,66 @@ body.nav-open .mobile-menu a { transform: translateY(0); }
 }
 .section--dark .photo-ph span { color: #7E97AC; }
 
+/* Feature panel — a non-photo alternative for a .figure slot when there
+   is no real photo and none is expected soon. Restates copy that is
+   already on the page as an icon list, instead of leaving a "photo
+   coming later" placeholder sitting there indefinitely. */
+.feature-panel {
+  position: relative;
+  height: 100%;
+  min-height: 260px;
+  border-radius: var(--radius-lg);
+  padding: clamp(1.75rem, 3vw, 2.5rem);
+  background:
+    repeating-linear-gradient(135deg,
+      rgba(19,64,99,0.045) 0 12px,
+      rgba(19,64,99,0.012) 12px 24px),
+    var(--cream-2);
+  border: 1px solid var(--sand-line);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.35rem;
+}
+.feature-panel__row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.feature-panel__row + .feature-panel__row {
+  padding-top: 1.35rem;
+  border-top: 1px solid var(--sand-line);
+}
+.feature-panel__icon {
+  flex: none;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--cream-2);
+  box-shadow: 0 0 0 1px var(--sand-line);
+}
+.feature-panel__text strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.08rem;
+  color: var(--ink);
+}
+.feature-panel__text { font-size: 0.88rem; color: var(--text-soft); }
+.section--dark .feature-panel {
+  background:
+    repeating-linear-gradient(135deg,
+      rgba(255,255,255,0.05) 0 12px,
+      rgba(255,255,255,0.015) 12px 24px),
+    rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.16);
+}
+.section--dark .feature-panel__row + .feature-panel__row { border-color: rgba(255,255,255,0.14); }
+.section--dark .feature-panel__icon { background: rgba(255,255,255,0.07); box-shadow: none; }
+.section--dark .feature-panel__text { color: #A9C0D4; }
+.section--dark .feature-panel__text strong { color: var(--cream); }
+
 /* ------------------------------------------------------------------ */
 /* 11. THE JOURNEY (scrollytelling)                                    */
 /* ------------------------------------------------------------------ */
