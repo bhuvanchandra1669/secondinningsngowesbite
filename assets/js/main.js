@@ -326,6 +326,17 @@
     const nums = document.querySelectorAll('[data-count]');
     if (!nums.length) return;
 
+    // The markup carries the real figure, not a zero, so a visitor with no
+    // JavaScript reads "120 items rescued" rather than "0". Once we know
+    // we're going to animate it, reset to zero up front — otherwise the
+    // number would sit at its final value and then jump backwards to 0 the
+    // moment it scrolled into view. Under reduced motion we leave it alone:
+    // run() writes the final value straight in, so there is nothing to
+    // count and nothing to hide.
+    if (!prefersReduced) {
+      nums.forEach((el) => { el.textContent = '0'; });
+    }
+
     const format = (v, el) => {
       const dec = parseInt(el.dataset.countDecimals || 0, 10);
       const n = dec ? v.toFixed(dec) : Math.round(v);
@@ -859,6 +870,482 @@
   /* Boot                                                                */
   /* ------------------------------------------------------------------ */
 
+  /* ================================================================== */
+  /* CINEMATIC LAYER                                                     */
+  /*                                                                     */
+  /* Continuous motion — a custom cursor, scroll-reactive skew, tilting  */
+  /* cards, a pointer spotlight. All of it is enhancement on top of a    */
+  /* site that already reads and works with none of it running.          */
+  /*                                                                     */
+  /* Everything shares ONE rAF loop. Eight effects each spinning up      */
+  /* their own requestAnimationFrame is how a page ends up dropping      */
+  /* frames on a laptop; one loop with subscribers stays flat.           */
+  /* ================================================================== */
+
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  const ticker = (function () {
+    const subs = [];
+    let running = false;
+    let last = 0;
+
+    function frame(now) {
+      // Clamped so returning to a backgrounded tab doesn't apply one
+      // enormous delta and fling everything across the screen.
+      const dt = clamp(now - last || 16, 8, 48);
+      last = now;
+      // Forward order, over a snapshot. Forward because subscribers are
+      // registered in dependency order — the shared scroll/pointer reader
+      // goes first so everything after it reads this frame's numbers, not
+      // the last one's. The snapshot is so a subscriber that removes
+      // itself mid-loop (the scramble does) can't shift the list underneath
+      // the iteration.
+      const frameSubs = subs.slice();
+      for (let i = 0; i < frameSubs.length; i++) {
+        try {
+          frameSubs[i](dt, now);
+        } catch (err) {
+          console.error('[second-innings] ticker subscriber failed, dropping it:', err);
+          const at = subs.indexOf(frameSubs[i]);
+          if (at > -1) subs.splice(at, 1);
+        }
+      }
+      if (running && subs.length) requestAnimationFrame(frame);
+      else running = false;
+    }
+
+    function start() {
+      if (running || !subs.length || document.hidden) return;
+      running = true;
+      last = performance.now();
+      requestAnimationFrame(frame);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) running = false;
+      else start();
+    });
+
+    return {
+      add(fn) { subs.push(fn); start(); },
+      remove(fn) {
+        const i = subs.indexOf(fn);
+        if (i > -1) subs.splice(i, 1);
+      }
+    };
+  })();
+
+  // Read once per frame, shared by everything downstream, so no two
+  // effects disagree about where the pointer is or how fast we're moving.
+  const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  const scroll = { y: 0, v: 0 };
+
+  function initCinematicState() {
+    if (prefersReduced) return;
+    scroll.y = window.scrollY;
+
+    window.addEventListener('pointermove', (e) => {
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+    }, { passive: true });
+
+    // Registered before every other effect, so they all read this frame's
+    // numbers rather than last frame's.
+    ticker.add(() => {
+      const y = window.scrollY;
+      scroll.v = y - scroll.y;
+      scroll.y = y;
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Custom cursor                                                       */
+  /*                                                                     */
+  /* A dot pinned to the pointer and a ring that trails it on a spring.  */
+  /* Both blend in difference mode, so they invert whatever is behind    */
+  /* them and stay legible on cream, on navy and over photographs        */
+  /* without anyone having to tell them which they're on.                */
+  /* ------------------------------------------------------------------ */
+
+  function initCursor() {
+    if (prefersReduced || !canHover()) return;
+
+    const dot = document.createElement('div');
+    const ring = document.createElement('div');
+    dot.className = 'cursor-dot';
+    ring.className = 'cursor-ring';
+    dot.setAttribute('aria-hidden', 'true');
+    ring.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(dot);
+    document.body.appendChild(ring);
+    document.documentElement.classList.add('has-cursor');
+
+    const INTERACTIVE = 'a, button, summary, [role="button"], .card, .door, .member, .faq__q';
+    const root = document.documentElement;
+    let rx = pointer.x;
+    let ry = pointer.y;
+    let scale = 1;
+    let target = 1;
+
+    const over = () => { root.classList.add('cursor-active'); target = 1.5; };
+    const out = () => { root.classList.remove('cursor-active'); target = 1; };
+
+    document.addEventListener('pointerover', (e) => {
+      if (e.target.closest && e.target.closest(INTERACTIVE)) over();
+    });
+    document.addEventListener('pointerout', (e) => {
+      if (!e.target.closest || !e.target.closest(INTERACTIVE)) return;
+      const to = e.relatedTarget;
+      if (to && to.closest && to.closest(INTERACTIVE)) return;
+      out();
+    });
+    document.addEventListener('pointerdown', () => { target *= 0.72; });
+    document.addEventListener('pointerup', () => {
+      target = root.classList.contains('cursor-active') ? 1.5 : 1;
+    });
+    root.addEventListener('mouseleave', () => root.classList.add('cursor-out'));
+    root.addEventListener('mouseenter', () => root.classList.remove('cursor-out'));
+
+    ticker.add(() => {
+      dot.style.transform = 'translate3d(' + pointer.x + 'px,' + pointer.y + 'px,0)';
+      rx = lerp(rx, pointer.x, 0.19);
+      ry = lerp(ry, pointer.y, 0.19);
+      scale = lerp(scale, target, 0.16);
+      ring.style.transform =
+        'translate3d(' + rx + 'px,' + ry + 'px,0) scale(' + scale + ')';
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Scroll-velocity skew                                                */
+  /*                                                                     */
+  /* Content leans into the direction of travel and settles when the     */
+  /* page stops. Applied to the inner .wrap rather than the section, so  */
+  /* section backgrounds stay put and no diagonal seams open up between  */
+  /* a cream block and the navy one below it.                            */
+  /*                                                                     */
+  /* Any wrap with something sticky inside is left alone — a transform   */
+  /* on an ancestor silently kills position:sticky, which is exactly     */
+  /* what the journey scrollytelling is built on.                        */
+  /* ------------------------------------------------------------------ */
+
+  function initScrollSkew() {
+    if (prefersReduced) return;
+
+    const wraps = [].filter.call(
+      document.querySelectorAll('main > section > .wrap'),
+      (w) => {
+        const kids = w.querySelectorAll('*');
+        for (let i = 0; i < kids.length; i++) {
+          if (getComputedStyle(kids[i]).position === 'sticky') return false;
+        }
+        return true;
+      }
+    );
+    if (!wraps.length) return;
+
+    wraps.forEach((w) => w.setAttribute('data-skew', ''));
+
+    let skew = 0;
+
+    ticker.add(() => {
+      const target = clamp(scroll.v * 0.05, -2.6, 2.6);
+      skew = lerp(skew, target, 0.11);
+      if (Math.abs(skew) < 0.005) skew = 0;
+      const t = skew === 0 ? '' : 'skewY(' + skew.toFixed(3) + 'deg)';
+      for (let i = 0; i < wraps.length; i++) wraps[i].style.transform = t;
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Marquee, driven by scroll                                           */
+  /*                                                                     */
+  /* Takes the belt off its CSS animation and onto the ticker, so the    */
+  /* direction you scroll pushes it along and it eases back to a slow    */
+  /* drift when you stop.                                                */
+  /* ------------------------------------------------------------------ */
+
+  function initMarqueeVelocity() {
+    if (prefersReduced) return;
+
+    document.querySelectorAll('.marquee').forEach((m) => {
+      const tracks = m.querySelectorAll('.marquee__track');
+      // initMarquee clones the track to make the loop seamless. Without
+      // that clone there's nothing to wrap around to, so leave it be.
+      if (tracks.length < 2) return;
+
+      for (let i = 0; i < tracks.length; i++) {
+        tracks[i].style.willChange = 'transform';
+      }
+
+      let width = tracks[0].getBoundingClientRect().width;
+      let x = 0;
+      let boost = 0;
+      let hovered = false;
+      let tookOver = false;
+
+      m.addEventListener('pointerenter', () => { hovered = true; });
+      m.addEventListener('pointerleave', () => { hovered = false; });
+
+      if ('ResizeObserver' in window) {
+        new ResizeObserver(() => {
+          width = tracks[0].getBoundingClientRect().width;
+        }).observe(tracks[0]);
+      } else {
+        window.addEventListener('resize', () => {
+          width = tracks[0].getBoundingClientRect().width;
+        });
+      }
+
+      ticker.add((dt) => {
+        // The CSS animation stays on until the very first frame we
+        // actually paint. Killing it up front would leave the belt frozen
+        // dead if the ticker never got to run — a tab opened in the
+        // background and never looked at, say.
+        if (!tookOver) {
+          tookOver = true;
+          for (let i = 0; i < tracks.length; i++) tracks[i].style.animation = 'none';
+        }
+        boost = lerp(boost, clamp(scroll.v * 0.85, -16, 16), 0.09);
+        // Hovering slows the belt to a crawl instead of stopping it dead,
+        // so it never looks like it has broken.
+        const drift = hovered ? 0.006 : 0.042;
+        x -= drift * dt + boost;
+        if (width > 0) {
+          if (x <= -width) x += width;
+          else if (x > 0) x -= width;
+        }
+        const t = 'translate3d(' + x.toFixed(2) + 'px,0,0)';
+        for (let i = 0; i < tracks.length; i++) tracks[i].style.transform = t;
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 3D tilt with a moving specular sheen                                */
+  /* ------------------------------------------------------------------ */
+
+  function initTilt() {
+    if (prefersReduced || !canHover()) return;
+
+    const MAX = 6.5;
+    const LIFT = 6;
+    const items = [];
+
+    document.querySelectorAll('.card, .door, .member').forEach((el) => {
+      if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+      el.classList.add('tilt');
+
+      const glare = document.createElement('span');
+      glare.className = 'tilt__glare';
+      glare.setAttribute('aria-hidden', 'true');
+      el.appendChild(glare);
+
+      const item = { el, glare, rx: 0, ry: 0, lift: 0, tx: 0, ty: 0, tl: 0, live: false };
+      items.push(item);
+
+      el.addEventListener('pointerenter', () => {
+        item.live = true;
+        item.tl = 1;
+        el.classList.add('is-tilting');
+      });
+      el.addEventListener('pointermove', (e) => {
+        const r = el.getBoundingClientRect();
+        // A zero-sized rect would divide out to NaN and write garbage into
+        // the glare's custom properties, which fails silently in CSS.
+        if (!r.width || !r.height) return;
+        const px = (e.clientX - r.left) / r.width;
+        const py = (e.clientY - r.top) / r.height;
+        item.tx = (0.5 - py) * MAX * 2;
+        item.ty = (px - 0.5) * MAX * 2;
+        glare.style.setProperty('--gx', (px * 100).toFixed(1) + '%');
+        glare.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
+      });
+      el.addEventListener('pointerleave', () => {
+        item.live = false;
+        item.tx = 0;
+        item.ty = 0;
+        item.tl = 0;
+        el.classList.remove('is-tilting');
+      });
+    });
+
+    if (!items.length) return;
+
+    ticker.add(() => {
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        const settled =
+          !it.live &&
+          Math.abs(it.rx) < 0.02 && Math.abs(it.ry) < 0.02 && Math.abs(it.lift) < 0.02;
+
+        if (settled) {
+          // Hand the element back to CSS so its own :hover rules apply.
+          if (it.el.style.transform) it.el.style.transform = '';
+          continue;
+        }
+        it.rx = lerp(it.rx, it.tx, 0.13);
+        it.ry = lerp(it.ry, it.ty, 0.13);
+        it.lift = lerp(it.lift, it.tl, 0.13);
+        it.el.style.transform =
+          'perspective(900px) rotateX(' + it.rx.toFixed(2) + 'deg) rotateY(' +
+          it.ry.toFixed(2) + 'deg) translateY(' + (-it.lift * LIFT).toFixed(2) + 'px)';
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Text scramble                                                       */
+  /*                                                                     */
+  /* Section labels resolve out of noise, character by character, the    */
+  /* first time they're scrolled to. Short uppercase strings only —      */
+  /* running this on body copy would just be unreadable.                 */
+  /* ------------------------------------------------------------------ */
+
+  function initScramble() {
+    if (prefersReduced || !('IntersectionObserver' in window)) return;
+
+    const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#*/\\';
+    const DUR = 640;
+
+    const run = (el) => {
+      const final = el.textContent;
+      const chars = final.split('');
+      const started = performance.now();
+      el.classList.add('is-scrambling');
+
+      // A finite animation on an endless loop: it takes itself back off
+      // the ticker the moment it has resolved.
+      const step = (dt, now) => {
+        const p = clamp((now - started) / DUR, 0, 1);
+        if (p >= 1) {
+          el.textContent = final;
+          el.classList.remove('is-scrambling');
+          ticker.remove(step);
+          return;
+        }
+        let out = '';
+        for (let i = 0; i < chars.length; i++) {
+          const ch = chars[i];
+          if (ch === ' ') { out += ' '; continue; }
+          // Each character locks in at its own moment, left to right.
+          const lock = (i / chars.length) * 0.7 + 0.3;
+          out += p >= lock ? ch : GLYPHS[(Math.random() * GLYPHS.length) | 0];
+        }
+        el.textContent = out;
+      };
+
+      ticker.add(step);
+    };
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        io.unobserve(e.target);
+        run(e.target);
+      });
+    }, { threshold: 0.9 });
+
+    document.querySelectorAll('.eyebrow').forEach((el) => {
+      // Text-only labels, and short enough that scrambling reads as an
+      // effect rather than as the page having broken.
+      if (el.children.length) return;
+      if (el.textContent.trim().length > 28) return;
+      io.observe(el);
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Pointer spotlight + ambient drift on the dark blocks                */
+  /* ------------------------------------------------------------------ */
+
+  function initSpotlight() {
+    if (prefersReduced || !canHover()) return;
+
+    document.querySelectorAll('.section--dark').forEach((sec) => {
+      const light = document.createElement('div');
+      light.className = 'spotlight';
+      light.setAttribute('aria-hidden', 'true');
+      sec.insertBefore(light, sec.firstChild);
+
+      sec.addEventListener('pointerenter', () => sec.classList.add('is-lit'));
+      sec.addEventListener('pointerleave', () => sec.classList.remove('is-lit'));
+      sec.addEventListener('pointermove', (e) => {
+        const r = sec.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        light.style.setProperty('--sx', (((e.clientX - r.left) / r.width) * 100).toFixed(1) + '%');
+        light.style.setProperty('--sy', (((e.clientY - r.top) / r.height) * 100).toFixed(1) + '%');
+      }, { passive: true });
+    });
+  }
+
+  function initDrift() {
+    if (prefersReduced) return;
+
+    const sections = document.querySelectorAll('.section--dark');
+    if (!sections.length) return;
+
+    const all = [];
+
+    sections.forEach((sec) => {
+      const layer = document.createElement('div');
+      layer.className = 'drift';
+      layer.setAttribute('aria-hidden', 'true');
+
+      const motes = [];
+      for (let i = 0; i < 7; i++) {
+        const solid = i % 3 === 0;
+        const size = solid ? 4 + Math.random() * 4 : 30 + Math.random() * 90;
+        const el = document.createElement('span');
+        el.className = 'drift__mote' + (solid ? ' drift__mote--solid' : '');
+        el.style.width = size.toFixed(0) + 'px';
+        el.style.height = size.toFixed(0) + 'px';
+        layer.appendChild(el);
+        motes.push({
+          el,
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          vx: (Math.random() - 0.5) * 0.0045,
+          vy: (Math.random() - 0.5) * 0.0045
+        });
+      }
+
+      sec.insertBefore(layer, sec.firstChild);
+      const entry = { motes, visible: false };
+      all.push(entry);
+
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver((es) => {
+          entry.visible = es[0].isIntersecting;
+        }, { threshold: 0 }).observe(sec);
+      } else {
+        entry.visible = true;
+      }
+    });
+
+    ticker.add((dt) => {
+      for (let s = 0; s < all.length; s++) {
+        // Offscreen sections cost nothing — no point animating motes
+        // nobody is looking at.
+        if (!all[s].visible) continue;
+        const motes = all[s].motes;
+        for (let i = 0; i < motes.length; i++) {
+          const m = motes[i];
+          m.x += m.vx * dt;
+          m.y += m.vy * dt;
+          if (m.x < -20) m.x = 120;
+          else if (m.x > 120) m.x = -20;
+          if (m.y < -20) m.y = 120;
+          else if (m.y > 120) m.y = -20;
+          m.el.style.transform =
+            'translate3d(' + m.x.toFixed(2) + 'vw,' + m.y.toFixed(2) + '%,0)';
+        }
+      }
+    });
+  }
+
   function boot() {
     if (hasGSAP()) gsap.registerPlugin(ScrollTrigger);
 
@@ -884,7 +1371,19 @@
       initHeroMark,
       initSubmitState,
       initPageTransitions,
-      initYear
+      initYear,
+
+      // Cinematic layer. initCinematicState registers the shared
+      // pointer/scroll reader first, so every effect after it reads the
+      // same frame's numbers.
+      initCinematicState,
+      initCursor,
+      initScrollSkew,
+      initMarqueeVelocity,
+      initTilt,
+      initScramble,
+      initSpotlight,
+      initDrift
     ];
 
     // One broken feature shouldn't take the rest of the page down with it.

@@ -2699,3 +2699,156 @@ button.member:hover h3 { color: var(--accent); }
   25%  { opacity: 1; }
   100% { opacity: 0; transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(1); }
 }
+
+/* ------------------------------------------------------------------ */
+/* 25. CINEMATIC LAYER                                                 */
+/*                                                                     */
+/* Everything below is pure enhancement, layered on top of a site that */
+/* already works without it. Each piece is gated three ways:           */
+/*   - .js            — never applies if the script didn't run         */
+/*   - pointer/hover  — the cursor-driven pieces need a real pointer   */
+/*   - reduced-motion — the block at the end switches all of it off    */
+/* All continuous motion runs off one shared rAF ticker in main.js     */
+/* rather than a loop per effect.                                      */
+/* ------------------------------------------------------------------ */
+
+/* --- Custom cursor ------------------------------------------------- */
+/* Two elements: a dot that tracks the pointer exactly, and a ring that
+   lags behind on a spring. Both use difference blending, so they invert
+   whatever is under them — one cursor that stays legible on cream, on
+   navy, and over photos without needing to know which it is on. */
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 10001;
+  pointer-events: none;
+  border-radius: 50%;
+  mix-blend-mode: difference;
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-out);
+  will-change: transform;
+}
+.cursor-dot {
+  width: 7px; height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  background: #fff;
+}
+.cursor-ring {
+  width: 38px; height: 38px;
+  margin: -19px 0 0 -19px;
+  border: 1.4px solid #fff;
+  transition: opacity 0.3s var(--ease-out), background-color 0.35s var(--ease-out),
+              border-color 0.35s var(--ease-out);
+}
+html.has-cursor .cursor-dot,
+html.has-cursor .cursor-ring { opacity: 1; }
+html.has-cursor.cursor-out .cursor-dot,
+html.has-cursor.cursor-out .cursor-ring { opacity: 0; }
+
+/* The ring fills as it passes over anything interactive. */
+html.has-cursor.cursor-active .cursor-ring { background: rgba(255,255,255,0.55); border-color: transparent; }
+html.has-cursor.cursor-active .cursor-dot { opacity: 0; }
+
+/* Hide the native arrow only where our own cursor stands in for it —
+   text fields keep theirs, because a caret you cannot place is a
+   genuinely worse form. */
+html.has-cursor,
+html.has-cursor a,
+html.has-cursor button,
+html.has-cursor summary,
+html.has-cursor [role="button"] { cursor: none; }
+html.has-cursor input,
+html.has-cursor textarea,
+html.has-cursor select,
+html.has-cursor label { cursor: auto; }
+
+/* --- Scroll-velocity skew ------------------------------------------ */
+/* Sections lean into the direction of travel and settle when the scroll
+   stops. Applied per-section and only to sections with nothing sticky
+   inside — a transformed ancestor would break position:sticky. */
+
+.js [data-skew] { will-change: transform; }
+
+/* --- 3D tilt + glare ----------------------------------------------- */
+
+.js .tilt {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.js .tilt__glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+  background: radial-gradient(
+    circle at var(--gx, 50%) var(--gy, 50%),
+    rgba(255,255,255,0.55), rgba(255,255,255,0) 55%);
+  z-index: 3;
+}
+.js .tilt.is-tilting .tilt__glare { opacity: 1; }
+.js .section--dark .tilt__glare {
+  background: radial-gradient(
+    circle at var(--gx, 50%) var(--gy, 50%),
+    rgba(255,255,255,0.16), rgba(255,255,255,0) 55%);
+}
+
+/* --- Cursor spotlight on dark sections ------------------------------ */
+/* A soft warm light that follows the pointer across the navy blocks.
+   Sits above the section background and below its content. */
+
+.js .spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-out);
+  background: radial-gradient(
+    620px circle at var(--sx, 50%) var(--sy, 50%),
+    rgba(242,168,29,0.13), rgba(225,96,31,0.06) 38%, transparent 68%);
+}
+.js .section--dark.is-lit .spotlight { opacity: 1; }
+.js .section--dark > .wrap { position: relative; z-index: 1; }
+
+/* --- Ambient drift -------------------------------------------------- */
+/* Slow-moving motes behind dark sections. Positions come from the
+   ticker, so they never fight the spotlight for the same paint. */
+
+.js .drift {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.js .drift__mote {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.16);
+  will-change: transform;
+}
+.js .drift__mote--solid {
+  border: 0;
+  background: rgba(242,168,29,0.22);
+}
+
+/* --- Text scramble --------------------------------------------------- */
+/* The label holds its final width while the glyphs are still resolving,
+   so nothing around it reflows mid-decode. */
+
+.js .eyebrow.is-scrambling { font-variant-numeric: tabular-nums; }
+
+/* --- Reduced motion: switch the whole layer off --------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-dot, .cursor-ring { display: none !important; }
+  html.has-cursor, html.has-cursor a, html.has-cursor button,
+  html.has-cursor summary, html.has-cursor [role="button"] { cursor: auto; }
+  .js [data-skew] { transform: none !important; }
+  .js .tilt { transform: none !important; }
+  .js .tilt__glare, .js .spotlight, .js .drift { display: none !important; }
+}
